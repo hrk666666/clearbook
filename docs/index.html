@@ -57,7 +57,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .card-title{font:500 16px/24px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .card-title .material-symbols-outlined{font-size:20px;color:var(--primary)}
 /* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;flex-shrink:0;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
 .btn:active{transform:scale(.96)}
 .btn-filled{background:var(--primary);color:var(--on-primary)}
 .btn-filled:hover{box-shadow:var(--e1)}
@@ -69,7 +69,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .btn-text{background:transparent;color:var(--primary);padding:0 12px}
 .btn-text:hover{background:var(--primary-container)}
 .btn .material-symbols-outlined{font-size:18px}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 /* Upload */
 .upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--med) var(--ease)}
 .upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-container)}
