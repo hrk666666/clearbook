@@ -51,6 +51,19 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .page{display:none;animation:fadeUp var(--med) var(--ease)}
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* MD3 Chip Group */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+
+/* MD3 Filter Chip */
+.filter-chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px;border-radius:8px;border:1px solid var(--outline);background:transparent;color:var(--on-surface-variant);font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:background var(--fast) var(--ease),border-color var(--fast) var(--ease)}
+.filter-chip:hover{background:var(--sc)}
+.filter-chip.active{background:var(--secondary-container);color:var(--on-secondary-container);border-color:transparent}
+.filter-chip .chip-icon{font-size:18px}
+
+/* Page Title */
+.page-title{font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px}
+
 /* Cards */
 .card{background:var(--sc-low);border-radius:var(--r-lg);padding:24px;margin-bottom:16px;transition:box-shadow var(--fast) var(--ease)}
 .card:hover{box-shadow:var(--e1)}
@@ -286,13 +299,13 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
   <div class="main-content">
     <!-- ===== PAGE: CLEAN ===== -->
     <div class="page active" id="page-clean">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">auto_stories</span>
         Clear Book
       </h1>
 
       <!-- Upload -->
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">upload_file</span>选择文件</div>
         <div class="upload-zone" id="uploadZone">
           <span class="material-symbols-outlined">cloud_upload</span>
@@ -306,8 +319,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         </div>
       </div>
 
+      <div class="divider"></div>
+
       <!-- Rules -->
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">tune</span>清洗规则</div>
         <div class="toggle-row">
           <button class="btn btn-text" onclick="setAllRules(true)"><span class="material-symbols-outlined">check_box</span>全开</button>
@@ -316,7 +331,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         <div class="rules-grid" id="rulesGrid"></div>
 
         <!-- Homophone Dictionary -->
-        <div class="card-title" style="margin-top:24px"><span class="material-symbols-outlined">dictionary</span>同音字混淆词典</div>
+        <div class="divider" style="margin-top:16px"></div>
+        <div class="card-title" style="margin-top:16px"><span class="material-symbols-outlined">dictionary</span>同音字混淆词典</div>
         <p style="font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);margin-bottom:12px">
           内置广告混淆词典 + 智能拼音检测。可自定义扩展。
         </p>
@@ -334,7 +350,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         <div id="userDictList"></div>
 
         <!-- Custom regex -->
-        <div class="card-title" style="margin-top:24px"><span class="material-symbols-outlined">add_circle</span>自定义正则规则</div>
+        <div class="divider" style="margin-top:16px"></div>
+        <div class="card-title" style="margin-top:16px"><span class="material-symbols-outlined">add_circle</span>自定义正则规则</div>
         <div class="rule-input-area">
           <textarea id="customPattern" placeholder="输入正则表达式，如：第.{1,3}章\s+.*?推荐" rows="2"></textarea>
           <button class="btn btn-tonal" onclick="addCustomRule()"><span class="material-symbols-outlined">add</span></button>
@@ -359,10 +376,12 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
       </div>
 
       <!-- Stats -->
+      <div class="divider" style="margin-bottom:16px"></div>
       <div id="stats" style="display:none"></div>
 
       <!-- Preview -->
-      <div class="card" id="previewCard" style="display:none">
+      <div class="divider" style="margin-bottom:16px"></div>
+      <div class="card-elevated" id="previewCard" style="display:none">
         <div class="card-title"><span class="material-symbols-outlined">preview</span>对比预览</div>
         <div class="preview-container">
           <div class="preview-box">
@@ -379,11 +398,11 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: CONVERT ===== -->
     <div class="page" id="page-convert">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">swap_horiz</span>
         格式转换
       </h1>
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">upload_file</span>选择文件</div>
         <div class="upload-zone" id="convertUploadZone">
           <span class="material-symbols-outlined">cloud_upload</span>
@@ -396,13 +415,16 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           <span class="size" id="convertFileSize"></span>
         </div>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-outlined">
         <div class="card-title"><span class="material-symbols-outlined">settings</span>转换设置</div>
-        <div class="format-chips">
-          <div class="format-chip active" data-fmt="auto">自动检测</div>
-          <div class="format-chip" data-fmt="epub">EPUB</div>
-          <div class="format-chip" data-fmt="html">HTML</div>
-          <div class="format-chip" data-fmt="pdf">PDF</div>
+        <div class="chip-group">
+          <button class="filter-chip active" data-fmt="auto"><span class="chip-icon">auto_fix_high</span>自动检测</button>
+          <button class="filter-chip" data-fmt="epub">EPUB</button>
+          <button class="filter-chip" data-fmt="html">HTML</button>
+          <button class="filter-chip" data-fmt="pdf">PDF</button>
         </div>
         <label class="rule-item" style="padding:4px 0">
           <div class="rule-label"><span>HTML 转换时去除广告/脚本/导航</span></div>
@@ -422,7 +444,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: MARKET ===== -->
     <div class="page" id="page-market">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">store</span>
         规则市场
       </h1>
@@ -446,20 +468,23 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: AI ===== -->
     <div class="page" id="page-ai">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">psychology</span>
         AI 规则生成
       </h1>
-      <div class="card">
+      <div class="card-filled">
         <div class="card-title"><span class="material-symbols-outlined">info</span>使用方法</div>
-        <ol style="font:400 14px/24px 'Noto Sans SC';color:var(--on-surface);padding-left:20px">
+        <ol class="md3-list">
           <li>点击下方<strong>复制提示词</strong></li>
           <li>将提示词 + 你的 TXT 文件发给任意 AI（ChatGPT / Claude / Gemini 等）</li>
           <li>AI 会分析你的文件并返回清洗规则 JSON</li>
           <li>将 JSON 粘贴到下方，点击<strong>导入规则</strong></li>
         </ol>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">prompt_suggest</span>提示词</div>
         <textarea id="aiPrompt" readonly style="min-height:200px;font-size:13px"></textarea>
         <div class="btn-row" style="margin-top:12px">
@@ -468,7 +493,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           </button>
         </div>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-outlined">
         <div class="card-title"><span class="material-symbols-outlined">input</span>粘贴 AI 返回的 JSON</div>
         <textarea id="aiResponse" placeholder='粘贴 AI 返回的 JSON，格式如：
 {
@@ -1758,24 +1786,29 @@ async function fetchPackDetail(id) {
 function renderMarketplace() {
   const content = document.getElementById('marketContent');
   const packs = [...COMMUNITY_PACKS, ...marketplacePacks];
-  content.innerHTML = packs.map(p => `
-    <div class="market-card">
-      <div class="info">
-        <div class="title">${p.name}</div>
-        <div class="desc">${p.desc}</div>
-        <div class="meta">by ${p.author} · v${p.version} · ${p.stars || 0} stars</div>
+  if (!packs.length) {
+    content.innerHTML = '<p style="font:400 14px/20px;color:var(--on-surface-variant);padding:16px 0">暂无规则包</p>';
+    return;
+  }
+  content.innerHTML = '<div class="list-container">' + packs.map(p => `
+    <div class="list-item" onclick="event.stopPropagation()">
+      <div class="leading"><span class="material-symbols-outlined">extension</span></div>
+      <div class="content">
+        <div class="headline">${p.name}</div>
+        <div class="supporting">${p.desc}</div>
+        <div class="supporting" style="font-size:11px;margin-top:4px">by ${p.author} · v${p.version} · ${p.stars || 0} stars</div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div class="trailing" style="display:flex;gap:4px">
         ${p.installed
-          ? '<button class="btn btn-text" disabled>已安装</button>'
-          : `<button class="btn btn-tonal" onclick="installPack('${p.id}')">安装</button>`
+          ? '<button class="btn btn-text" disabled style="height:32px;font-size:12px">已安装</button>'
+          : `<button class="btn btn-tonal" onclick="installPack('${p.id}')" style="height:32px;font-size:12px">安装</button>`
         }
-        <button class="btn btn-text" onclick="exportPack('${p.id}')">
-          <span class="material-symbols-outlined">download</span>
+        <button class="btn btn-text" onclick="exportPack('${p.id}')" style="height:32px;min-width:32px;padding:0 8px">
+          <span class="material-symbols-outlined" style="font-size:18px">download</span>
         </button>
       </div>
     </div>
-  `).join('');
+  `).join('') + '</div>';
 }
 
 function switchMarketTab(tab, el) {
