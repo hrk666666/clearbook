@@ -138,10 +138,6 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:transform var(--med) var(--ease),opacity var(--med) var(--ease)}
 .toast.show{transform:translateX(-50%) translateY(0;opacity:1}
 /* Modal overlay */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp var(--med) var(--ease)}
-.modal{background:var(--surface);border-radius:var(--r-xl);max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:24px}
-.modal-title{font:700 22px/28px 'Noto Sans SC';margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.modal-title .material-symbols-outlined{color:var(--primary)}
 /* Toggle row */
 .toggle-row{display:flex;gap:8px;margin-bottom:12px}
 /* Custom rule input area */
@@ -1985,9 +1981,8 @@ function createRulePack() {
   marketplacePacks.push(pack);
   localStorage.setItem('cb-market-packs', JSON.stringify(marketplacePacks));
 
-  // Close modal
-  const modal = document.querySelector('.modal-overlay');
-  if (modal) modal.remove();
+  // Close dialog
+  dialog.close();
   renderMarketplace();
   snackbar.show(`规则包 "${name}" 已创建`);
 
