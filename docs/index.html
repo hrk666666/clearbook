@@ -1073,6 +1073,7 @@ let fileName = '';
 let convertedText = '';
 let convertedFileName = '';
 let marketplacePacks = [];
+let MARKET_CATEGORIES = [];
 
 RULE_GROUPS.forEach(g => g.rules.forEach(r => { rules[r.id] = true; }));
 
@@ -1774,10 +1775,11 @@ let COMMUNITY_PACKS = [];
 
 async function fetchMarketIndex() {
   try {
-    const resp = await fetch(`${GITHUB_RAW}/index.json`);
+    const resp = await fetch(`${GITHUB_RAW}/marketplace.json?t=${Date.now()}`);
     if (resp.ok) {
-      COMMUNITY_PACKS = await resp.json();
-      COMMUNITY_PACKS.forEach(p => p.installed = false);
+      const data = await resp.json();
+      COMMUNITY_PACKS = (data.rules || []).map(p => ({...p, installed: false}));
+      MARKET_CATEGORIES = data.categories || [];
     }
   } catch(e) {
     console.warn('Failed to fetch market index:', e);
@@ -1786,7 +1788,9 @@ async function fetchMarketIndex() {
 
 async function fetchPackDetail(id) {
   try {
-    const resp = await fetch(`${GITHUB_RAW}/${id}.json`);
+    const pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+    if (!pack || !pack.path) return null;
+    const resp = await fetch(`${GITHUB_RAW}/${pack.path}/manifest.json?t=${Date.now()}`);
     if (resp.ok) return await resp.json();
   } catch(e) {}
   return null;
