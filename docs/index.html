@@ -2053,6 +2053,29 @@ initRipples();
 // ==================== INIT MD3 ====================
 initRipples();
 
+// ==================== CONVERT TO CLEAN ====================
+function importConvertedToClean() {
+  if (!convertedText) return snackbar.show('没有可导入的内容');
+  originalText = convertedText;
+  fileName = convertedFileName || 'converted.txt';
+  document.getElementById('fileInfo').classList.add('show');
+  document.getElementById('fileName').textContent = fileName;
+  document.getElementById('fileSize').textContent = formatSize(convertedText.length);
+  document.getElementById('btnClean').disabled = false;
+  hideResult();
+  navigate('clean');
+  snackbar.show('已导入 ' + fileName + '，可以开始清洗');
+}
+
+function filterMarket(query) {
+  const cards = document.querySelectorAll('.market-card');
+  const q = query.toLowerCase();
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
 </script>
 </body>
 </html>
