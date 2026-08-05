@@ -11,7 +11,7 @@
 @font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC"),local("NotoSansSC-Regular"),local("Source Han Sans SC Regular"),local("Source Han Sans CN Regular"),local("PingFang SC"),local("Microsoft YaHei");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Medium"),local("NotoSansSC-Medium"),local("Source Han Sans SC Medium"),local("Source Han Sans CN Medium");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Bold"),local("NotoSansSC-Bold"),local("Source Han Sans SC Bold"),local("Source Han Sans CN Bold");font-weight:700;font-style:normal;font-display:swap}
-<style>
+
 :root {
   --primary:#6750A4;--on-primary:#fff;--primary-container:#EADDFF;--on-primary-container:#21005D;
   --secondary:#625B71;--secondary-container:#E8DEF8;--on-secondary-container:#1D192B;
@@ -158,7 +158,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Homophone tag */
 .homo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--tertiary-container);border-radius:12px;font:400 12px/16px 'Noto Sans SC';margin:2px}
 .homo-tag .arrow{color:var(--outline);font-size:10px}
-</style>
+
 
 /* ========== MD3 Ripple ========== */
 .ripple-host{position:relative;overflow:hidden}
@@ -499,7 +499,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+
 
 <script>
 // ==================== MD3 COMPONENT CLASSES ====================
@@ -619,6 +619,8 @@ function showConfirm({ icon, title, content, confirmText = '确定', cancelText 
     ]
   });
 }
+
+
 
 // ==================== PINYIN TABLE ====================
 const PY_MAP = {
@@ -1823,7 +1825,7 @@ async function installPack(id) {
   snackbar.show(`已安装 ${pack.name}（${pack.rules.length} 条规则）`);
 }
 
-function exportPack(id) {
+async function exportPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
@@ -2016,12 +2018,6 @@ function importAIRules() {
 
 // ==================== TOAST ====================
 function toast(msg) { snackbar.show(msg); }
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-}
 
 // ==================== INIT ====================
 
@@ -2033,10 +2029,11 @@ async function checkForUpdates() {
     if (resp.ok) {
       const data = await resp.json();
       if (data.version !== APP_VERSION) {
-        showConfirm({`发现新版本 v${data.version}（当前 v${APP_VERSION}）\n\n${data.changelog || ''}\n\n是否更新？`);
-        
-          window.location.href = data.url || `https://hrk666666.github.io/clearbook-rules/`;
-        }
+        showConfirm({
+          title: '发现新版本',
+          content: `v${data.version}（当前 v${APP_VERSION}）`,
+          onConfirm: () => { window.location.href = data.url || 'https://hrk666666.github.io/clearbook/'; }
+        });
       }
     }
   } catch(e) {}
@@ -2051,6 +2048,9 @@ renderUserDict();
 renderCustomRules();
 initAI();
 
+initRipples();
+
+// ==================== INIT MD3 ====================
 initRipples();
 
 </script>
