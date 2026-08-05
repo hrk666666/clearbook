@@ -1580,22 +1580,13 @@ function loadUserDict() {
 }
 
 function showBuiltinDict() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title"><span class="material-symbols-outlined">dictionary</span>内置混淆词典（${HOMOPHONE_DICT.length} 条）</div>
-      <table class="dict-table">
-        <tr><th>混淆词</th><th>→</th><th>正确词</th></tr>
-        ${HOMOPHONE_DICT.map(r => `<tr><td>${r.dirty}</td><td>→</td><td>${r.clean || '(删除)'}</td></tr>`).join('')}
-      </table>
-      <div style="text-align:right;margin-top:16px">
-        <button class="btn btn-filled" onclick="this.closest('.modal-overlay').remove()">关闭</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+  const tableRows = HOMOPHONE_DICT.map(r => `<tr><td>${r.dirty}</td><td>→</td><td>${r.clean || '(删除)'}</td></tr>`).join('');
+  dialog.open({
+    icon: 'dictionary',
+    title: `内置混淆词典（${HOMOPHONE_DICT.length} 条）`,
+    content: `<table class="dict-table"><tr><th>混淆词</th><th>→</th><th>正确词</th></tr>${tableRows}</table>`,
+    actions: [{ text: '关闭', type: 'filled' }]
+  });
 }
 
 function exportDict() {
@@ -1865,25 +1856,34 @@ async function exportPack(id) {
 }
 
 function showCreateRulePack() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title"><span class="material-symbols-outlined">add_box</span>创建规则包</div>
-      <div style="display:grid;gap:12px">
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">名称</label><input type="text" id="packName" placeholder="如：我的小说清理规则"></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">作者</label><input type="text" id="packAuthor" placeholder="你的名字"></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">描述</label><textarea id="packDesc" placeholder="这个规则包做什么" rows="2"></textarea></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">规则（每行一个正则）</label><textarea id="packRules" placeholder="关注公众号.*?领取\\n本小说来自.*?首发" rows="4" style="font-family:monospace"></textarea></div>
+  dialog.open({
+    icon: 'add_box',
+    title: '创建规则包',
+    content: `
+      <div style="display:grid;gap:16px">
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">名称</label>
+          <input type="text" id="packName" placeholder="如：我的小说清理规则" style="width:100%">
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">作者</label>
+          <input type="text" id="packAuthor" placeholder="你的名字" style="width:100%">
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">描述</label>
+          <textarea id="packDesc" placeholder="这个规则包做什么" rows="2" style="width:100%"></textarea>
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">规则（每行一个正则）</label>
+          <textarea id="packRules" placeholder="关注公众号.*?领取\n本小说来自.*?首发" rows="4" style="width:100%;font-family:monospace"></textarea>
+        </div>
       </div>
-      <div class="btn-row" style="margin-top:16px;justify-content:flex-end">
-        <button class="btn btn-text" onclick="this.closest('.modal-overlay').remove()">取消</button>
-        <button class="btn btn-filled" onclick="createRulePack()">创建</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+    `,
+    actions: [
+      { text: '取消', type: 'text' },
+      { text: '创建', type: 'filled', fn: createRulePack }
+    ]
+  });
 }
 
 function createRulePack() {
@@ -1914,15 +1914,22 @@ function createRulePack() {
   renderMarketplace();
   snackbar.show(`规则包 "${name}" 已创建`);
 
-  // Show GitHub submit option
+  // Offer to export as JSON for manual submission
   setTimeout(() => {
-    const url = `https://github.com/hrk666666/clearbook-rules/issues/new?title=${encodeURIComponent('Rule Pack: ' + name)}&body=${encodeURIComponent('```json\n' + JSON.stringify(pack, null, 2) + '\n```')}`;
     showConfirm({
-      icon: 'upload',
-      title: '提交到 GitHub',
-      content: '是否将此规则包提交到 GitHub 规则市场？',
-      confirmText: '提交',
-      onConfirm: () => { window.open(url, '_blank'); }
+      icon: 'download',
+      title: '导出规则包',
+      content: '规则包已创建。是否导出为 JSON 文件？你可以将文件提交到 GitHub 规则市场。',
+      confirmText: '导出',
+      onConfirm: () => {
+        const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `clearbook-${pack.id}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        snackbar.show('已导出规则包');
+      }
     });
   }, 500);
 }
