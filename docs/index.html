@@ -2092,6 +2092,19 @@ function importConvertedToClean() {
   snackbar.show('已导入 ' + fileName + '，可以开始清洗');
 }
 
+
+function filterCategory(categoryId, el) {
+  document.querySelectorAll('.chip-group .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#marketContent .list-item').forEach(item => {
+    if (!categoryId || item.dataset.category === categoryId) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
 function filterMarket(query) {
   const items = document.querySelectorAll('#marketContent .list-item');
   const q = query.toLowerCase();
