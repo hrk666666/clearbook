@@ -58,7 +58,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .card-title .material-symbols-outlined{font-size:20px;color:var(--primary)}
 /* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;flex-shrink:0;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:background var(--fast) var(--ease),box-shadow var(--fast) var(--ease),transform var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
-.btn:active{transform:scale(.96)}
+.btn:active{opacity:.8}
 .btn-filled{background:var(--primary);color:var(--on-primary)}
 .btn-filled:hover{box-shadow:var(--e1)}
 .btn-filled:disabled{background:var(--on-surface);color:var(--surface);opacity:.38;cursor:not-allowed;box-shadow:none}
@@ -191,7 +191,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* ========== MD3 FAB ========== */
 .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--e2);transition:background var(--med) var(--ease),box-shadow var(--med) var(--ease),transform var(--med) var(--ease);z-index:40}
 .fab:hover{box-shadow:0 4px 8px rgba(0,0,0,.3)}
-.fab:active{transform:scale(.92)}
+.fab:active{opacity:.8}
 .fab .material-symbols-outlined{font-size:24px}
 .fab.extended{width:auto;padding:0 20px;border-radius:16px;gap:8px}
 @media(max-width:768px){.fab{bottom:96px;right:16px}}
