@@ -1113,14 +1113,21 @@ function renderRules() {
 
 function toggleRule(id,val,exclusiveId) {
   rules[id] = val;
-  if (val && id==='allBlank') { rules['multiBlank']=false; renderRules(); }
-  if (val && id==='multiBlank') { rules['allBlank']=false; renderRules(); }
-  if (val && exclusiveId) { rules[exclusiveId]=false; renderRules(); }
+  // Update exclusive toggle without full re-render
+  if (val && id==='allBlank') { rules['multiBlank']=false; updateToggle('multiBlank',false); }
+  if (val && id==='multiBlank') { rules['allBlank']=false; updateToggle('allBlank',false); }
+  if (val && exclusiveId) { rules[exclusiveId]=false; updateToggle(exclusiveId,false); }
+}
+function updateToggle(id,val) {
+  const checkbox = document.querySelector(`input[onchange*="${id}"]`);
+  if (checkbox) checkbox.checked = val;
 }
 
 function setAllRules(val) {
-  Object.keys(rules).forEach(k => rules[k] = val);
-  renderRules();
+  Object.keys(rules).forEach(k => {
+    rules[k] = val;
+    updateToggle(k, val);
+  });
 }
 
 // ==================== SMART HOMOPHONE DETECTION ====================
