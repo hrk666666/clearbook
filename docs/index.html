@@ -152,10 +152,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Version badge */
 .version{font:400 10px/14px 'Noto Sans SC';color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
 /* Format chips */
-.format-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),border-color var(--fast) var(--ease)}
-.format-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
-.format-chip:hover{background:var(--sc)}
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.filter-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),border-color var(--fast) var(--ease)}
+.filter-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.filter-chip:hover{background:var(--sc)}
 /* Dict table */
 .dict-table{width:100%;border-collapse:collapse;margin-top:8px}
 .dict-table th,.dict-table td{padding:8px 12px;text-align:left;font:400 13px/18px 'Noto Sans SC';border-bottom:1px solid var(--outline-variant)}
@@ -1177,29 +1177,29 @@ function detectByPinyin(text) {
     const hasPromoContext = PROMO_CONTEXT.some(w => line.includes(w));
 
     for (let i = 0; i < line.length; i++) {
-      // Get a window of Chinese characters
-      let window = '';
+      // Get a text window of Chinese characters
+      let textWindow = '';
       let j = i;
       while (j < line.length && j < i + windowSize) {
         if (/[\u4e00-\u9fff]/.test(line[j])) {
-          window += line[j];
+          textWindow += line[j];
         } else if (/[a-zA-Z0-9]/.test(line[j])) {
-          window += line[j];
+          textWindow += line[j];
         }
         j++;
       }
-      if (window.length < 2) continue;
+      if (textWindow.length < 2) continue;
 
-      const windowPinyin = textToPinyin(window);
+      const windowPinyin = textToPinyin(textWindow);
 
       for (const sensitive of SENSITIVE_PINYIN) {
         const sim = similarity(windowPinyin, sensitive.py);
         if (sim >= 0.75 && hasPromoContext) {
-          changes.push({start: i, end: j, original: window, replacement: sensitive.word, confidence: sim});
+          changes.push({start: i, end: j, original: textWindow, replacement: sensitive.word, confidence: sim});
           i = j - 1;
           break;
         } else if (sim >= 0.85) {
-          changes.push({start: i, end: j, original: window, replacement: sensitive.word, confidence: sim});
+          changes.push({start: i, end: j, original: textWindow, replacement: sensitive.word, confidence: sim});
           i = j - 1;
           break;
         }
@@ -1646,14 +1646,14 @@ function handleConvertFile(file) {
   document.getElementById('convertStats').style.display = 'none';
   document.getElementById('btnConvertDownload').style.display = 'none';
   // Auto-select format chip
-  document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
-  const chip = document.querySelector(`.format-chip[data-fmt="${ext}"]`) || document.querySelector('.format-chip[data-fmt="auto"]');
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  const chip = document.querySelector(`.filter-chip[data-fmt="${ext}"]`) || document.querySelector('.filter-chip[data-fmt="auto"]');
   if (chip) chip.classList.add('active');
 }
 
-document.querySelectorAll('.format-chip').forEach(chip => {
+document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
   });
 });
@@ -1792,9 +1792,11 @@ async function fetchPackDetail(id) {
   return null;
 }
 
-function renderMarketplace() {
+function renderMarketplace(tab) {
   const content = document.getElementById('marketContent');
-  const packs = [...COMMUNITY_PACKS, ...marketplacePacks];
+  let packs = [...COMMUNITY_PACKS, ...marketplacePacks];
+  if (tab === 'mine') packs = packs.filter(p => p.installed);
+  else if (tab === 'popular') packs = packs.sort((a, b) => (b.stars || 0) - (a.stars || 0));
   if (!packs.length) {
     content.innerHTML = '<p style="font:400 14px/20px;color:var(--on-surface-variant);padding:16px 0">暂无规则包</p>';
     return;
@@ -1823,7 +1825,7 @@ function renderMarketplace() {
 function switchMarketTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  renderMarketplace();
+  renderMarketplace(tab);
 }
 
 async function installPack(id) {
