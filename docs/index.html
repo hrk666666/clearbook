@@ -1986,22 +1986,37 @@ function createRulePack() {
   renderMarketplace();
   snackbar.show(`规则包 "${name}" 已创建`);
 
-  // Offer to export as JSON for manual submission
+  // Offer to submit to GitHub or export
   setTimeout(() => {
-    showConfirm({
-      icon: 'download',
-      title: '导出规则包',
-      content: '规则包已创建。是否导出为 JSON 文件？你可以将文件提交到 GitHub 规则市场。',
-      confirmText: '导出',
-      onConfirm: () => {
-        const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `clearbook-${pack.id}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        snackbar.show('已导出规则包');
-      }
+    const issueTitle = encodeURIComponent('Rule Pack: ' + pack.name);
+    const issueBody = encodeURIComponent('## 规则包信息\n\n' +
+      '**名称：** ' + pack.name + '\n' +
+      '**作者：** ' + pack.author + '\n' +
+      '**描述：** ' + (pack.desc || '无') + '\n' +
+      '**版本：** ' + pack.version + '\n\n' +
+      '## 规则\n\n```json\n' + JSON.stringify(pack, null, 2) + '\n```\n\n' +
+      '> 由 Clear Book 自动生成');
+    const issueUrl = 'https://github.com/hrk666666/clearbook-rules/issues/new?title=' + issueTitle + '&body=' + issueBody;
+
+    dialog.open({
+      icon: 'cloud_upload',
+      title: '提交规则包',
+      content: '<p style="margin-bottom:12px">规则包已创建并保存到本地。</p><p>你可以：</p><ul style="padding-left:20px;margin-top:8px"><li>提交到 GitHub 规则市场（需 GitHub 账号）</li><li>导出为 JSON 文件手动分享</li></ul>',
+      actions: [
+        { text: '导出 JSON', type: 'text', fn: () => {
+          const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'clearbook-' + pack.id + '.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+          snackbar.show('已导出规则包');
+        }},
+        { text: '提交到 GitHub', type: 'filled', fn: () => {
+          window.open(issueUrl, '_blank');
+          snackbar.show('已打开 GitHub Issues');
+        }}
+      ]
     });
   }, 500);
 }
@@ -2181,6 +2196,25 @@ function filterCategory(categoryId, el) {
     } else {
       item.style.display = 'none';
     }
+  });
+}
+
+
+function sharePack(id) {
+  const pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
+  const json = JSON.stringify(pack, null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    snackbar.show('规则包 JSON 已复制到剪贴板，可分享给他人');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = json;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    snackbar.show('规则包 JSON 已复制到剪贴板');
   });
 }
 
