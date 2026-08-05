@@ -411,7 +411,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           <div class="format-chip" data-fmt="pdf">PDF</div>
         </div>
         <label class="rule-item" style="padding:4px 0">
-          <div class="rule-label"><span>HTML 转换时去除广告/脚本/导航</span></div>
+          <div class="rule-label"><span>HTML 转换时去除脚本/样式/导航（仅格式清理）</span></div>
           <label class="md-switch"><input type="checkbox" id="convertStripAds" checked><div class="track"><div class="thumb"></div></div></label>
         </label>
       </div>
@@ -420,6 +420,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           <span class="material-symbols-outlined">swap_horiz</span>转换为 TXT
         </button>
         <button class="btn btn-outlined" id="btnConvertDownload" onclick="downloadConverted()" style="display:none">
+          <span class="material-symbols-outlined">download</span>下载 TXT
+        </button>
+        <button class="btn btn-tonal" id="btnConvertToClean" onclick="importConvertedToClean()" style="display:none">
+          <span class="material-symbols-outlined">cleaning_services</span>导入清洗
           <span class="material-symbols-outlined">download</span>下载 TXT
         </button>
       </div>
@@ -1626,6 +1630,7 @@ function handleConvertFile(file) {
   document.getElementById('btnConvert').disabled = false;
   document.getElementById('convertStats').style.display = 'none';
   document.getElementById('btnConvertDownload').style.display = 'none';
+  document.getElementById('btnConvertToClean').style.display = 'none';
   // Auto-select format chip
   document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
   const chip = document.querySelector(`.format-chip[data-fmt="${ext}"]`) || document.querySelector('.format-chip[data-fmt="auto"]');
@@ -1668,6 +1673,7 @@ async function convertFile() {
       </div>
     `;
     document.getElementById('btnConvertDownload').style.display = '';
+    document.getElementById('btnConvertToClean').style.display = '';
     snackbar.show("转换完成");
   } catch(err) {
     snackbar.show('转换失败: ' + err.message);
@@ -1745,6 +1751,19 @@ function downloadConverted() {
   a.click();
   URL.revokeObjectURL(a.href);
   snackbar.show("已下载 TXT");
+}
+
+function importConvertedToClean() {
+  if (!convertedText) return snackbar.show("没有可导入的内容");
+  originalText = convertedText;
+  fileName = convertedFileName || "converted.txt";
+  document.getElementById("fileInfo").classList.add("show");
+  document.getElementById("fileName").textContent = fileName;
+  document.getElementById("fileSize").textContent = formatSize(convertedText.length);
+  document.getElementById("btnClean").disabled = false;
+  hideResult();
+  navigate("clean");
+  snackbar.show(`已导入 ${fileName}，可以开始清洗`);
 }
 
 // ==================== MARKETPLACE ====================
