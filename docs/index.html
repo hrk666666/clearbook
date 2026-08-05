@@ -34,7 +34,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .nav-rail{width:80px;background:var(--sc-low);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;position:fixed;top:0;left:0;bottom:0;z-index:50}
 .nav-rail .logo{font-size:28px;color:var(--primary);margin:8px 0 24px}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;cursor:pointer;width:100%;text-decoration:none;color:var(--on-surface-variant)}
-.nav-item .icon-wrap{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:all var(--med) var(--ease)}
+.nav-item .icon-wrap{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background var(--med) var(--ease),transform var(--med) var(--ease)}
 .nav-item.active .icon-wrap{background:var(--secondary-container)}
 .nav-item.active{color:var(--on-surface)}
 .nav-item .label{font:500 12px/16px 'Noto Sans SC';}
@@ -57,7 +57,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .card-title{font:500 16px/24px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .card-title .material-symbols-outlined{font-size:20px;color:var(--primary)}
 /* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;flex-shrink:0;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;flex-shrink:0;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:background var(--fast) var(--ease),box-shadow var(--fast) var(--ease),transform var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
 .btn:active{transform:scale(.96)}
 .btn-filled{background:var(--primary);color:var(--on-primary)}
 .btn-filled:hover{box-shadow:var(--e1)}
@@ -71,7 +71,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .btn .material-symbols-outlined{font-size:18px}
 .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 /* Upload */
-.upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--med) var(--ease)}
+.upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:border-color var(--med) var(--ease),background var(--med) var(--ease)}
 .upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-container)}
 .upload-zone .material-symbols-outlined{font-size:48px;color:var(--primary);margin-bottom:8px;display:block}
 .upload-zone p{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
@@ -93,8 +93,8 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 /* MD3 Switch */
 .md-switch{position:relative;width:52px;height:32px;flex-shrink:0}
 .md-switch input{opacity:0;width:0;height:0}
-.md-switch .track{position:absolute;inset:0;background:var(--surface-variant);border:2px solid var(--outline);border-radius:16px;transition:all var(--med) var(--ease);cursor:pointer}
-.md-switch .thumb{position:absolute;top:50%;left:8px;width:16px;height:16px;background:var(--outline);border-radius:50%;transform:translateY(-50%);transition:all var(--med) var(--ease)}
+.md-switch .track{position:absolute;inset:0;background:var(--surface-variant);border:2px solid var(--outline);border-radius:16px;transition:background var(--med) var(--ease),border-color var(--med) var(--ease);cursor:pointer}
+.md-switch .thumb{position:absolute;top:50%;left:8px;width:16px;height:16px;background:var(--outline);border-radius:50%;transform:translateY(-50%);transition:background var(--med) var(--ease),left var(--med) var(--ease),width var(--med) var(--ease),height var(--med) var(--ease)}
 .md-switch input:checked+.track{background:var(--primary);border-color:var(--primary)}
 .md-switch input:checked+.track .thumb{left:28px;width:24px;height:24px;background:var(--on-primary)}
 /* Stats bar */
@@ -118,11 +118,11 @@ textarea::placeholder,input::placeholder{color:var(--on-surface-variant)}
 textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Tabs */
 .tabs{display:flex;border-bottom:1px solid var(--outline-variant);margin-bottom:16px;gap:0}
-.tab{padding:12px 24px;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all var(--fast) var(--ease)}
+.tab{padding:12px 24px;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color var(--fast) var(--ease),background var(--fast) var(--ease),border-color var(--fast) var(--ease)}
 .tab:hover{background:var(--sc)}
 .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 /* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:transform var(--med) var(--ease),opacity var(--med) var(--ease)}
 .toast.show{transform:translateX(-50%) translateY(0;opacity:1}
 /* Modal overlay */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp var(--med) var(--ease)}
@@ -140,7 +140,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .version{font:400 10px/14px 'Noto Sans SC';color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
 /* Format chips */
 .format-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:all var(--fast) var(--ease)}
+.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),border-color var(--fast) var(--ease)}
 .format-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
 .format-chip:hover{background:var(--sc)}
 /* Dict table */
@@ -172,7 +172,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .state-layer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;transition:opacity var(--fast) var(--ease)}
 
 /* ========== MD3 Snackbar ========== */
-.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
+.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:transform var(--med) var(--ease),opacity var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
 .snackbar.show{transform:translateX(-50%) translateY(0);opacity:1}
 .snackbar .snack-text{flex:1}
 .snackbar .snack-action{background:none;border:none;color:var(--inverse-primary);font:500 14px/20px 'Noto Sans SC';cursor:pointer;padding:0 8px;height:36px;border-radius:18px}
@@ -197,7 +197,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .sheet-handle{width:32px;height:4px;background:var(--outline-variant);border-radius:2px;margin:0 auto 16px}
 
 /* ========== MD3 FAB ========== */
-.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--e2);transition:all var(--med) var(--ease);z-index:40}
+.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--e2);transition:background var(--med) var(--ease),box-shadow var(--med) var(--ease),transform var(--med) var(--ease);z-index:40}
 .fab:hover{box-shadow:0 4px 8px rgba(0,0,0,.3)}
 .fab:active{transform:scale(.92)}
 .fab .material-symbols-outlined{font-size:24px}
@@ -231,7 +231,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
 /* ========== MD3 Segmented Button ========== */
 .segmented-btn-group{display:inline-flex;border:1px solid var(--outline);border-radius:20px;overflow:hidden}
-.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:all var(--fast) var(--ease)}
+.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:background var(--fast) var(--ease),color var(--fast) var(--ease)}
 .segmented-btn:last-child{border-right:none}
 .segmented-btn.active{background:var(--secondary-container);color:var(--on-secondary-container)}
 .segmented-btn:hover:not(.active){background:var(--sc)}
