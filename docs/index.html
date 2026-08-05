@@ -1440,17 +1440,19 @@ function showResult(stats) {
     </div>
   `;
 
-  // Smart preview
+  // Smart preview - find first actual difference
   document.getElementById('previewCard').style.display = 'block';
   const origLines = originalText.split('\n');
   const cleanLines = cleanedText.split('\n');
   let diffIdx = 0;
-  const maxCheck = Math.min(origLines.length, cleanLines.length, 500);
+  const maxCheck = Math.min(origLines.length, cleanLines.length, 1000);
   for (let i = 0; i < maxCheck; i++) {
-    if (origLines[i] !== cleanLines[i]) { diffIdx = Math.max(0, i - 2); break; }
+    if (origLines[i] !== cleanLines[i]) { diffIdx = Math.max(0, i - 3); break; }
   }
-  document.getElementById('origPreview').textContent = origLines.slice(diffIdx, diffIdx + 40).join('\n');
-  document.getElementById('cleanPreview').textContent = cleanLines.slice(diffIdx, diffIdx + 40).join('\n');
+  const origSample = origLines.slice(diffIdx, diffIdx + 50).join('\n');
+  const cleanSample = cleanLines.slice(diffIdx, diffIdx + 50).join('\n');
+  document.getElementById('origPreview').textContent = origSample || originalText.substring(0, 2000);
+  document.getElementById('cleanPreview').textContent = cleanSample || cleanedText.substring(0, 2000);
   document.getElementById('origStats').textContent = `${origLines.length} 行 · ${formatSize(originalText.length)}`;
   document.getElementById('cleanStats').textContent = `${cleanLines.length} 行 · ${formatSize(cleanedText.length)}`;
 
@@ -1473,10 +1475,11 @@ function downloadResult() {
   const blob = new Blob([cleanedText], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  const dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  a.download = dlName;
   a.click();
   URL.revokeObjectURL(a.href);
-  snackbar.show(`已下载 ${a.download} (${formatSize(blob.size)})`);
+  snackbar.show(`已下载 ${dlName} (${formatSize(blob.size)})`);
 }
 
 function copyResult() {
@@ -1491,8 +1494,14 @@ function resetAll() {
   originalText = ''; cleanedText = ''; fileName = '';
   document.getElementById('fileInfo').classList.remove('show');
   document.getElementById('btnClean').disabled = true;
+  document.getElementById('btnDownload').style.display = 'none';
+  document.getElementById('btnCopy').style.display = 'none';
+  document.getElementById('btnReset').style.display = 'none';
+  document.getElementById('stats').style.display = 'none';
+  document.getElementById('previewCard').style.display = 'none';
   fileInput.value = '';
   hideResult();
+  snackbar.show('已重置');
 }
 
 // ==================== CUSTOM RULES ====================
@@ -1702,7 +1711,7 @@ async function convertEpub(file, stripAds) {
   for (const html of htmlFiles) {
     const doc = parser.parseFromString(html, 'text/html');
     if (stripAds) stripHtmlAds(doc);
-    text += doc.body.textContent + '\n\n';
+    text += (doc.body ? doc.body.textContent : '') + '\n\n';
   }
 
   return text.replace(/\n{3,}/g, '\n\n').trim();
@@ -1819,11 +1828,11 @@ function switchMarketTab(tab, el) {
 
 async function installPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
     if (detail) pack = {...pack, ...detail};
   }
-  if (!pack) return;
   pack.rules.forEach(r => {
     try {
       const regex = new RegExp(r.pattern, r.flags || 'gi');
@@ -1838,11 +1847,11 @@ async function installPack(id) {
 
 async function exportPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
     if (detail) pack = {...pack, ...detail};
   }
-  if (!pack) return;
   const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `clearbook-${pack.id}.json`; a.click(); URL.revokeObjectURL(a.href);
@@ -1894,7 +1903,8 @@ function createRulePack() {
   localStorage.setItem('cb-market-packs', JSON.stringify(marketplacePacks));
 
   // Close modal
-  document.querySelector('.modal-overlay').remove();
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) modal.remove();
   renderMarketplace();
   snackbar.show(`规则包 "${name}" 已创建`);
 
@@ -2077,11 +2087,11 @@ function importConvertedToClean() {
 }
 
 function filterMarket(query) {
-  const cards = document.querySelectorAll('.market-card');
+  const items = document.querySelectorAll('#marketContent .list-item');
   const q = query.toLowerCase();
-  cards.forEach(card => {
-    const text = card.textContent.toLowerCase();
-    card.style.display = text.includes(q) ? '' : 'none';
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(q) ? '' : 'none';
   });
 }
 
