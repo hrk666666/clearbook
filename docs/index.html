@@ -1840,7 +1840,7 @@ async function installPack(id) {
   snackbar.show(`已安装 ${pack.name}（${pack.rules.length} 条规则）`);
 }
 
-function exportPack(id) {
+async function exportPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
@@ -2033,12 +2033,6 @@ function importAIRules() {
 
 // ==================== TOAST ====================
 function toast(msg) { snackbar.show(msg); }
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-}
 
 // ==================== INIT ====================
 
