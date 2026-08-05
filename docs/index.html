@@ -2050,10 +2050,11 @@ async function checkForUpdates() {
     if (resp.ok) {
       const data = await resp.json();
       if (data.version !== APP_VERSION) {
-        showConfirm({`发现新版本 v${data.version}（当前 v${APP_VERSION}）\n\n${data.changelog || ''}\n\n是否更新？`);
-        
-          window.location.href = data.url || `https://hrk666666.github.io/clearbook-rules/`;
-        }
+        showConfirm({
+          title: '发现新版本',
+          content: `v${data.version}（当前 v${APP_VERSION}）\n${data.changelog || ''}`,
+          onConfirm: () => { window.location.href = data.url || 'https://hrk666666.github.io/clearbook/'; }
+        });
       }
     }
   } catch(e) {}
