@@ -160,14 +160,6 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .homo-tag .arrow{color:var(--outline);font-size:10px}
 
 
-/* ========== MD3 Ripple ========== */
-.ripple-host{position:relative;overflow:hidden}
-.ripple-host::after{content:'';position:absolute;inset:0;background:currentColor;opacity:0;pointer-events:none;border-radius:inherit;transition:opacity var(--fast) var(--ease)}
-.ripple-host:hover::after{opacity:0.08}
-.ripple-host:active::after{opacity:0.12}
-@keyframes ripple-wave{from{transform:scale(0);opacity:.3}to{transform:scale(2.5);opacity:0}}
-.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.3;transform:scale(0);animation:ripple-wave .6s var(--ease);pointer-events:none}
-
 /* ========== MD3 State Layer ========== */
 .state-layer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;transition:opacity var(--fast) var(--ease)}
 
@@ -582,27 +574,6 @@ class ProgressLinear {
   indeterminate() { this.el.classList.add('indeterminate'); return this; }
   done() { this.el.classList.remove('indeterminate'); this.set(100); setTimeout(() => this.el.remove(), 500); return this; }
   remove() { this.el.remove(); }
-}
-
-// Ripple effect
-function addRipple(e) {
-  const el = e.currentTarget;
-  const rect = el.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  const ripple = document.createElement('span');
-  ripple.className = 'ripple';
-  ripple.style.width = ripple.style.height = size + 'px';
-  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-  ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-  el.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
-}
-
-function initRipples() {
-  document.querySelectorAll('.btn, .nav-item, .list-item, .fab, .format-chip, .tab, .rule-item').forEach(el => {
-    el.classList.add('ripple-host');
-    el.addEventListener('click', addRipple);
-  });
 }
 
 // Dialog instance
@@ -2055,10 +2026,8 @@ renderUserDict();
 renderCustomRules();
 initAI();
 
-initRipples();
 
 // ==================== INIT MD3 ====================
-initRipples();
 
 // ==================== CONVERT TO CLEAN ====================
 function importConvertedToClean() {
