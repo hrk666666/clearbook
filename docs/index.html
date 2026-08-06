@@ -1381,20 +1381,22 @@ async function cleanText() {
       
       // Step 1: Whitespace
       report('处理空白字符...', (++step/totalSteps*100));
-      if (ruleFlags.allBlank) {
-        const before = result.split('\n').length;
-        result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
-        stats['完全去空行'] = before - result.split('\n').length;
-      } else if (ruleFlags.multiBlank) {
-        const m = result.match(/\n{3,}/g) || [];
-        result = result.replace(/\n{3,}/g, '\n\n');
-        stats['压缩多余空行'] = m.length;
-      }
-      if (ruleFlags.trimLine) {
-        const m = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
-        result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
-        stats['行首尾空白'] = m.length;
-      }
+      try {
+        if (ruleFlags.allBlank) {
+          const before = result.split('\n').length;
+          result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
+          stats['完全去空行'] = before - result.split('\n').length;
+        } else if (ruleFlags.multiBlank) {
+          const m = result.match(/\n{3,}/g) || [];
+          result = result.replace(/\n{3,}/g, '\n\n');
+          stats['压缩多余空行'] = m.length;
+        }
+        if (ruleFlags.trimLine) {
+          const m = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
+          result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
+          stats['行首尾空白'] = m.length;
+        }
+      } catch(err) { report('空白处理出错: ' + err.message, 0); }
       
       // Step 2: Regex rules
       report('应用清洗规则...', (++step/totalSteps*100));
@@ -1423,7 +1425,7 @@ async function cleanText() {
         let hCount = 0;
         homophoneDict.forEach(({dirty, clean}) => {
           try {
-            const escaped = dirty.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); const re = new RegExp(escaped, 'g');
+            const re = new RegExp(dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&'), 'g');
             const m = result.match(re);
             if (m) { hCount += m.length; result = result.replace(re, clean); }
           } catch(e) {}
