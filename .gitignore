@@ -5,3 +5,4 @@ build/
 local.properties
 .env
 *.log
+app/debug.keystore

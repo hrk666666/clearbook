@@ -31,6 +31,14 @@ jobs:
     - name: Install build tools
       run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
     
+    - name: Generate debug keystore
+      run: |
+        keytool -genkey -v -keystore app/debug.keystore \
+          -alias androiddebugkey \
+          -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass android -keypass android \
+          -dname "CN=Debug,O=Debug,C=US"
+    
     - name: Generate gradle wrapper
       run: |
         gradle wrapper --gradle-version 8.5
