@@ -1031,7 +1031,11 @@ const HOMOPHONE_DICT = [
   {dirty:'赚前',clean:'赚钱'},{dirty:'砖钱',clean:'赚钱'},{dirty:'转钱',clean:'赚钱'},
   {dirty:'加群',clean:''},{dirty:'进群',clean:''},{dirty:'裙',clean:'群'},
   {dirty:'某宝',clean:'淘宝'},{dirty:'某东',clean:'京东'},{dirty:'某音',clean:'抖音'},{dirty:'某手',clean:'快手'},
-  {dirty:'公重号',clean:'公众号'},{dirty:'公粽号',clean:'公众号'},
+  {dirty:'公重号',clean:'公众号'},{dirty:'公粽号',clean:'公众号'},{dirty:'公从号',clean:'公众号'},
+  {dirty:'淘宝宝',clean:'淘宝'},{dirty:'京冬',clean:'京东'},{dirty:'拼夕夕',clean:'拼多多'},
+  {dirty:'抖因',clean:'抖音'},{dirty:'快守',clean:'快手'},
+  {dirty:'加v',clean:'加微信'},{dirty:'加V',clean:'加微信'},{dirty:'➕v',clean:'加微信'},
+  {dirty:'扣裙',clean:'QQ群'},
   {dirty:'书币',clean:''},{dirty:'书币',clean:''},
 ];
 
@@ -1043,6 +1047,8 @@ const RULE_GROUPS = [
     {id:'watermark',label:'站点水印',hint:'本小说来自XX网...',regex:/(?:本小说(?:来自|由).{2,15}(?:提供|发布|首发)|(?:TXT|txt)(?:下载|电子书).{0,10}(?:www\.|http)|(?:来源|出处)[:：].{2,20}(?:网|站|\.com|\.cn))/gi},
     {id:'paging',label:'翻页提示',hint:'本章未完，请点击下一页...',regex:/(?:本章未完[，,]?请(?:点击|前往|到).{0,6}(?:下一页|阅读|继续)|(?:上|下)(?:一)?(?:页|章)(?:快捷键)?|←\s*(?:上|前)|→\s*(?:下|后)|(?:返回|进入)(?:书目|目录|首页))/gi},
     {id:'guide',label:'引导语',hint:'请到XX阅读完整版...',regex:/(?:请(?:到|前往|访问|登录).{2,15}(?:阅读|查看|获取)(?:完整|全部)(?:版|内容|章节)|(?:手机|电脑)(?:用户|版)(?:请)?(?:访问|阅读|打开)|(?:本站|本章).{0,5}(?:最新|全部)(?:章节|内容))/gi},
+    {id:'recommend',label:'推荐列表',hint:'热门小说推荐...',regex:/(?:最新|热门|好看)(?:的)?(?:小说|书|作品)(?:推荐|推荐榜|排行榜)[:：]?(?:\s*\d+[.、．].{2,20}(?:点击|阅读|查看)){2,}/gi},
+    {id:'inlineAd',label:'章节内嵌广告',hint:'插入正文的推广...',regex:/(?:ps[：:]?.{0,5}(?:帮忙|帮忙点).{0,20}(?:广告|公众号|关注)|(?:小伙伴们|亲们|书友们).{0,10}(?:点击|关注|扫码|帮忙)|(?:推荐好友|分享给).{0,15}(?:阅读|关注|领取))/gi},
   ]},
   {id:'whitespace',label:'空白 & 格式',icon:'space_bar',rules:[
     {id:'multiBlank',label:'压缩多余空行',hint:'连续2+空行→1行',regex:null,custom:true},
@@ -1250,15 +1256,49 @@ function handleFile(file) {
   fileName = file.name;
   const reader = new FileReader();
   reader.onload = e => {
-    originalText = e.target.result;
+    const buffer = e.target.result;
+    const uint8 = new Uint8Array(buffer);
+    
+    // Detect encoding
+    let encoding = 'UTF-8';
+    const isGBK = detectGBK(uint8);
+    if (isGBK) encoding = 'GBK';
+    
+    // Decode with detected encoding
+    try {
+      const decoder = new TextDecoder(encoding);
+      originalText = decoder.decode(uint8);
+    } catch(err) {
+      try { originalText = new TextDecoder('UTF-8').decode(uint8); }
+      catch(e) { try { originalText = new TextDecoder('GBK').decode(uint8); }
+      catch(e2) { originalText = new TextDecoder('GB18030').decode(uint8); } }
+    }
+    
+    // Remove BOM
+    if (originalText.charCodeAt(0) === 0xFEFF) originalText = originalText.substring(1);
+    
     document.getElementById('fileInfo').classList.add('show');
     document.getElementById('fileName').textContent = fileName;
-    document.getElementById('fileSize').textContent = formatSize(file.size);
+    document.getElementById('fileSize').textContent = formatSize(file.size) + (encoding !== 'UTF-8' ? ' (' + encoding + ')' : '');
     document.getElementById('btnClean').disabled = false;
     hideResult();
-    snackbar.show("文件已加载");
+    snackbar.show("文件已加载" + (encoding !== 'UTF-8' ? '（' + encoding + ' 编码，已自动转换）' : ''));
   };
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
+}
+
+function detectGBK(uint8) {
+  if (uint8.length >= 3 && uint8[0] === 0xEF && uint8[1] === 0xBB && uint8[2] === 0xBF) return false;
+  let gbkScore = 0, utf8Score = 0;
+  const len = Math.min(uint8.length, 10000);
+  for (let i = 0; i < len; i++) {
+    if (uint8[i] > 0x7F) {
+      if (i + 1 < len && uint8[i] >= 0x81 && uint8[i] <= 0xFE && uint8[i+1] >= 0x40 && uint8[i+1] <= 0xFE) { gbkScore++; i++; }
+      else if ((uint8[i] & 0xE0) === 0xC0 && i + 1 < len && (uint8[i+1] & 0xC0) === 0x80) { utf8Score++; i++; }
+      else if ((uint8[i] & 0xF0) === 0xE0 && i + 2 < len && (uint8[i+1] & 0xC0) === 0x80 && (uint8[i+2] & 0xC0) === 0x80) { utf8Score++; i += 2; }
+    }
+  }
+  return gbkScore > utf8Score * 0.5;
 }
 
 function formatSize(bytes) {
