@@ -2160,26 +2160,32 @@ function copyAIPrompt() {
 
 function importAIRules() {
   const input = document.getElementById('aiResponse').value.trim();
-  if (!input) return snackbar.show("请粘贴 AI 返回的 JSON");
+  if (!input) return snackbar.show('请粘贴 AI 返回的 JSON');
 
   try {
     // Try to extract JSON from the response
     let jsonStr = input;
     const codeBlock = input.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (codeBlock) jsonStr = codeBlock[1].trim();
+    // Also try to find JSON object directly
+    if (!jsonStr.startsWith('{')) {
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) jsonStr = jsonMatch[0];
+    }
 
     const data = JSON.parse(jsonStr);
     let ruleCount = 0;
     let homoCount = 0;
+    const errors = [];
 
     // Import rules
     if (data.rules && Array.isArray(data.rules)) {
       data.rules.forEach(r => {
         try {
           const regex = new RegExp(r.regex, r.flags || 'gi');
-          customRules.push({pattern: r.regex, regex, name: r.name});
+          customRules.push({pattern: r.regex, regex, name: r.name || r.description || r.regex.substring(0, 30)});
           ruleCount++;
-        } catch(e) {}
+        } catch(e) { errors.push(r.regex + ': ' + e.message); }
       });
     }
 
@@ -2200,12 +2206,18 @@ function importAIRules() {
     document.getElementById('aiResponse').value = '';
     
     // Show detailed feedback
-    let msg = '导入成功：';
-    if (ruleCount > 0) msg += ruleCount + ' 条规则';
+    let msg = '';
+    if (ruleCount > 0) msg += '已导入 ' + ruleCount + ' 条规则';
     if (ruleCount > 0 && homoCount > 0) msg += ' + ';
     if (homoCount > 0) msg += homoCount + ' 条混淆词';
-    if (ruleCount === 0 && homoCount === 0) msg += '无有效数据';
+    if (errors.length > 0) msg += ' (' + errors.length + ' 条失败)';
+    if (ruleCount === 0 && homoCount === 0) msg = '未找到有效规则';
     snackbar.show(msg);
+    
+    // Auto-clean after import if file is loaded
+    if (originalText && ruleCount > 0) {
+      setTimeout(function() { cleanText(); }, 500);
+    }
     
     // Visual feedback - highlight the custom rules section
     const customSection = document.getElementById('customRulesList');
