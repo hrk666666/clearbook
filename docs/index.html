@@ -1367,7 +1367,128 @@ async function cleanText() {
   const activeDict = rules['homophone'] ? [...HOMOPHONE_DICT, ...userHomophoneDict] : [];
   
   // Use Web Worker for heavy processing
-  const workerCode = `
+  const workerFn = function() {
+    self.onmessage = function(e) {
+      const {text, rules: activeRules, customRules, homophoneDict, ruleFlags} = e.data;
+      let result = text;
+      const stats = {};
+      let step = 0;
+      const totalSteps = 8;
+      
+      function report(msg, pct) {
+        self.postMessage({type: 'progress', msg, pct});
+      }
+      
+      // Step 1: Whitespace
+      report('处理空白字符...', (++step/totalSteps*100));
+      try {
+        if (ruleFlags.allBlank) {
+          const before = result.split('\n').length;
+          result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
+          stats['完全去空行'] = before - result.split('\n').length;
+        } else if (ruleFlags.multiBlank) {
+          const m = result.match(/\n{3,}/g) || [];
+          result = result.replace(/\n{3,}/g, '\n\n');
+          stats['压缩多余空行'] = m.length;
+        }
+        if (ruleFlags.trimLine) {
+          const m = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
+          result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
+          stats['行首尾空白'] = m.length;
+        }
+      } catch(err) { report('空白处理出错: ' + err.message, 0); }
+      
+      // Step 2: Regex rules
+      report('应用清洗规则...', (++step/totalSteps*100));
+      activeRules.forEach(function(r) {
+        if (!r.regex) return;
+        try {
+          var re = new RegExp(r.regex, r.flags);
+          var m = result.match(re);
+          if (m && m.length) { result = result.replace(re, ''); stats[r.label] = m.length; }
+        } catch(e) {}
+      });
+      
+      // Step 3: Custom rules
+      report('自定义规则...', (++step/totalSteps*100));
+      customRules.forEach(function(r) {
+        try {
+          var re = new RegExp(r.pattern, r.flags);
+          var m = result.match(re);
+          if (m && m.length) { result = result.replace(re, ''); stats['自定义: ' + r.pattern] = m.length; }
+        } catch(e) {}
+      });
+      
+      // Step 4: Homophone
+      report('同音字检测...', (++step/totalSteps*100));
+      if (homophoneDict.length) {
+        var hCount = 0;
+        homophoneDict.forEach(function(item) {
+          try {
+            var escaped = item.dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var re = new RegExp(escaped, 'g');
+            var m = result.match(re);
+            if (m) { hCount += m.length; result = result.replace(re, item.clean); }
+          } catch(e) {}
+        });
+        if (hCount) stats['同音字混淆'] = hCount;
+      }
+      
+      // Step 5: Dedup
+      report('去重处理...', (++step/totalSteps*100));
+      if (ruleFlags.dupPara) {
+        var lines = result.split('\n');
+        var deduped = [];
+        var count = 0;
+        for (var i = 0; i < lines.length; i++) {
+          if (i > 0 && lines[i].trim() && lines[i].trim() === (lines[i-1] || '').trim()) { count++; continue; }
+          deduped.push(lines[i]);
+        }
+        result = deduped.join('\n');
+        if (count) stats['重复段落去重'] = count;
+      }
+      
+      // Step 6: Normalize chapters
+      report('规范化章节...', (++step/totalSteps*100));
+      if (ruleFlags.normalizeChapter) {
+        var m = result.match(/第\d+章/g) || [];
+        result = result.replace(/第(\d+)章/g, function(_, n) {
+          var d = ['零','一','二','三','四','五','六','七','八','九'];
+          var num = parseInt(n);
+          if (num <= 10) return num === 10 ? '第十' : '第' + d[num];
+          if (num < 20) return '第十' + d[num-10];
+          if (num < 100) { var t=Math.floor(num/10),o=num%10; return '第'+d[t]+'十'+(o?d[o]:''); }
+          return '第' + n;
+        });
+        if (m.length) stats['章节标题规范化'] = m.length;
+      }
+      
+      // Step 7: Merge paragraphs
+      report('合并段落...', (++step/totalSteps*100));
+      if (ruleFlags.mergeParas) {
+        var lines = result.split('\n');
+        var merged = [];
+        var count = 0;
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          var next = (lines[i+1] || '').trim();
+          if (line && next && line.length < 20 && next.length < 80 && !line.match(/^[第章]/) && !next.match(/^[第章]/)) {
+            merged.push(line + next); i++; count++;
+          } else { merged.push(lines[i]); }
+        }
+        result = merged.join('\n');
+        if (count) stats['短段落合并'] = count;
+      }
+      
+      // Step 8: Final cleanup
+      report('完成...', 100);
+      result = result.replace(/\n{3,}/g, '\n\n').trim();
+      
+      self.postMessage({type: 'done', result: result, stats: stats});
+    };
+  };
+  
+
     self.onmessage = function(e) {
       const {text, rules: activeRules, customRules, homophoneDict, ruleFlags} = e.data;
       let result = text;
@@ -1487,7 +1608,7 @@ async function cleanText() {
     };
   `;
   
-  const blob = new Blob([workerCode], {type: 'application/javascript'});
+  const blob = new Blob(['(' + workerFn.toString() + ')()'], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(blob);
   const worker = new Worker(workerUrl);
   
