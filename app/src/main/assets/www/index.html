@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>Clear Book</title>
-<!-- System fonts -->
-<style>@font-face{font-family:"Material Symbols Outlined";src:url("fonts/material-symbols.woff2") format("woff2");font-weight:100 700;font-style:normal;font-display:block}</style>
 <script src="jszip.min.js"></script>
 <style>
-<style>
+@font-face{font-family:'Material Symbols Outlined';font-style:normal;font-weight:400;src:url("fonts/material-symbols.woff2") format('woff2')}
+.material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC"),local("NotoSansSC-Regular"),local("Source Han Sans SC Regular"),local("Source Han Sans CN Regular"),local("PingFang SC"),local("Microsoft YaHei");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Medium"),local("NotoSansSC-Medium"),local("Source Han Sans SC Medium"),local("Source Han Sans CN Medium");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Bold"),local("NotoSansSC-Bold"),local("Source Han Sans SC Bold"),local("Source Han Sans CN Bold");font-weight:700;font-style:normal;font-display:swap}
+
 :root {
   --primary:#6750A4;--on-primary:#fff;--primary-container:#EADDFF;--on-primary-container:#21005D;
   --secondary:#625B71;--secondary-container:#E8DEF8;--on-secondary-container:#1D192B;
@@ -25,16 +29,16 @@
   --fast:200ms;--med:300ms;--ease:cubic-bezier(.2,0,0,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font:500 16px/24px system-ui, -apple-system, system-ui, sans-serif, 'PingFang SC', sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 /* Nav Rail */
 .app-shell{display:flex;min-height:100vh}
 .nav-rail{width:80px;background:var(--sc-low);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;position:fixed;top:0;left:0;bottom:0;z-index:50}
 .nav-rail .logo{font-size:28px;color:var(--primary);margin:8px 0 24px}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;cursor:pointer;width:100%;text-decoration:none;color:var(--on-surface-variant)}
-.nav-item .icon-wrap{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:all var(--med) var(--ease)}
+.nav-item .icon-wrap{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background var(--med) var(--ease),transform var(--med) var(--ease)}
 .nav-item.active .icon-wrap{background:var(--secondary-container)}
 .nav-item.active{color:var(--on-surface)}
-.nav-item .label{font:500 12px/16px system-ui, sans-serif;}
+.nav-item .label{font:500 12px/16px 'Noto Sans SC';}
 .nav-item:hover .icon-wrap{background:var(--sc-high)}
 .main-content{margin-left:80px;flex:1;padding:24px 32px;max-width:1000px;width:100%}
 @media(max-width:768px){
@@ -48,14 +52,27 @@ body{font:500 16px/24px system-ui, -apple-system, system-ui, sans-serif, 'PingFa
 .page{display:none;animation:fadeUp var(--med) var(--ease)}
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* MD3 Chip Group */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+
+/* MD3 Filter Chip */
+.filter-chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px;border-radius:8px;border:1px solid var(--outline);background:transparent;color:var(--on-surface-variant);font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:background var(--fast) var(--ease),border-color var(--fast) var(--ease)}
+.filter-chip:hover{background:var(--sc)}
+.filter-chip.active{background:var(--secondary-container);color:var(--on-secondary-container);border-color:transparent}
+.filter-chip .chip-icon{font-size:18px}
+
+/* Page Title */
+.page-title{font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px}
+
 /* Cards */
 .card{background:var(--sc-low);border-radius:var(--r-lg);padding:24px;margin-bottom:16px;transition:box-shadow var(--fast) var(--ease)}
 .card:hover{box-shadow:var(--e1)}
-.card-title{font:500 16px/24px system-ui, sans-serif;color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.card-title{font:500 16px/24px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .card-title .material-symbols-outlined{font-size:20px;color:var(--primary)}
 /* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;font:500 14px/20px system-ui, sans-serif;cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
-.btn:active{transform:scale(.96)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;flex-shrink:0;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:background var(--fast) var(--ease),box-shadow var(--fast) var(--ease),transform var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
+.btn:active{opacity:.8}
 .btn-filled{background:var(--primary);color:var(--on-primary)}
 .btn-filled:hover{box-shadow:var(--e1)}
 .btn-filled:disabled{background:var(--on-surface);color:var(--surface);opacity:.38;cursor:not-allowed;box-shadow:none}
@@ -66,66 +83,62 @@ body{font:500 16px/24px system-ui, -apple-system, system-ui, sans-serif, 'PingFa
 .btn-text{background:transparent;color:var(--primary);padding:0 12px}
 .btn-text:hover{background:var(--primary-container)}
 .btn .material-symbols-outlined{font-size:18px}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 /* Upload */
-.upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--med) var(--ease)}
+.upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:border-color var(--med) var(--ease),background var(--med) var(--ease)}
 .upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-container)}
 .upload-zone .material-symbols-outlined{font-size:48px;color:var(--primary);margin-bottom:8px;display:block}
-.upload-zone p{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);margin-top:4px}
+.upload-zone p{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
 .upload-zone input{display:none}
-.file-info{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--sc);border-radius:var(--r-sm);margin-top:12px;font:500 14px/20px system-ui, sans-serif}
+.file-info{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--sc);border-radius:var(--r-sm);margin-top:12px;font:500 14px/20px 'Noto Sans SC'}
 .file-info.show{display:flex}
 .file-info .material-symbols-outlined{font-size:20px;color:var(--primary)}
 .file-info .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-info .size{color:var(--on-surface-variant);font:400 12px/16px system-ui, sans-serif}
+.file-info .size{color:var(--on-surface-variant);font:400 12px/16px 'Noto Sans SC'}
 /* Rules */
 .rules-grid{display:grid;gap:4px}
 .rule-group{margin-bottom:12px}
-.rule-group-header{font:500 14px/20px system-ui, sans-serif;color:var(--primary);padding:8px 0 4px;display:flex;align-items:center;gap:8px}
+.rule-group-header{font:500 14px/20px 'Noto Sans SC';color:var(--primary);padding:8px 0 4px;display:flex;align-items:center;gap:8px}
 .rule-group-header .material-symbols-outlined{font-size:18px}
 .rule-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:var(--r-sm);transition:background var(--fast) var(--ease)}
 .rule-item:hover{background:var(--sc)}
-.rule-label{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface);display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.rule-label .hint{font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant)}
+.rule-label{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.rule-label .hint{font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant)}
 /* MD3 Switch */
 .md-switch{position:relative;width:52px;height:32px;flex-shrink:0}
 .md-switch input{opacity:0;width:0;height:0}
-.md-switch .track{position:absolute;inset:0;background:var(--surface-variant);border:2px solid var(--outline);border-radius:16px;transition:all var(--med) var(--ease);cursor:pointer}
-.md-switch .thumb{position:absolute;top:50%;left:8px;width:16px;height:16px;background:var(--outline);border-radius:50%;transform:translateY(-50%);transition:all var(--med) var(--ease)}
+.md-switch .track{position:absolute;inset:0;background:var(--surface-variant);border:2px solid var(--outline);border-radius:16px;transition:background var(--med) var(--ease),border-color var(--med) var(--ease);cursor:pointer}
+.md-switch .thumb{position:absolute;top:50%;left:8px;width:16px;height:16px;background:var(--outline);border-radius:50%;transform:translateY(-50%);transition:background var(--med) var(--ease),left var(--med) var(--ease),width var(--med) var(--ease),height var(--med) var(--ease)}
 .md-switch input:checked+.track{background:var(--primary);border-color:var(--primary)}
-.md-switch input:checked+.track .thumb{left:28px;width:24px;height:24px;background:var(--on-primary)}
+.md-switch input:checked+.track .thumb{left:28px;background:var(--on-primary)}
 /* Stats bar */
 .stats-bar{background:var(--primary-container);border-radius:var(--r-md);padding:16px 20px;margin-bottom:16px}
-.stats-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:500 14px/20px system-ui, sans-serif;color:var(--on-primary-container)}
+.stats-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:500 14px/20px 'Noto Sans SC';color:var(--on-primary-container)}
 .stats-summary strong{font-weight:700}
 .stats-arrow{color:var(--on-surface-variant);font-size:12px}
 .stats-sep{color:var(--outline-variant);margin:0 4px}
 .stats-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.stats-chip{display:inline-flex;align-items:center;padding:4px 10px;background:var(--surface);border-radius:16px;font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);white-space:nowrap}
+.stats-chip{display:inline-flex;align-items:center;padding:4px 10px;background:var(--surface);border-radius:16px;font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);white-space:nowrap}
 /* Preview */
 .preview-container{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 @media(max-width:600px){.preview-container{grid-template-columns:1fr}}
 .preview-box{border:1px solid var(--outline-variant);border-radius:var(--r-sm);overflow:hidden}
-.preview-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--sc);font:500 14px/20px system-ui, sans-serif;color:var(--on-surface-variant)}
-.preview-content{padding:16px;max-height:400px;overflow-y:auto;font:400 13px/1.8 system-ui, sans-serif,monospace;color:var(--on-surface);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word}
+.preview-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--sc);font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant)}
+.preview-content{padding:16px;max-height:400px;overflow-y:auto;font:400 13px/1.8 'Noto Sans SC',monospace;color:var(--on-surface);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word}
 /* Textarea */
-textarea,input[type="text"],input[type="url"]{width:100%;padding:12px 16px;border:1px solid var(--outline);border-radius:var(--r-sm);font:400 14px/20px system-ui, sans-serif;background:var(--surface);color:var(--on-surface);outline:none;transition:border-color var(--fast) var(--ease);resize:vertical}
-textarea:focus,input:focus{border-color:var(--primary);border-width:2px;padding:11px 15px}
+textarea,input[type="text"],input[type="url"]{width:100%;padding:12px 16px;border:1px solid var(--outline);border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';background:var(--surface);color:var(--on-surface);outline:none;transition:border-color var(--fast) var(--ease);resize:vertical}
+textarea:focus,input:focus{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
 textarea::placeholder,input::placeholder{color:var(--on-surface-variant)}
 textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Tabs */
 .tabs{display:flex;border-bottom:1px solid var(--outline-variant);margin-bottom:16px;gap:0}
-.tab{padding:12px 24px;font:500 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all var(--fast) var(--ease)}
+.tab{padding:12px 24px;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color var(--fast) var(--ease),background var(--fast) var(--ease),border-color var(--fast) var(--ease)}
 .tab:hover{background:var(--sc)}
 .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 /* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px system-ui, sans-serif;box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:transform var(--med) var(--ease),opacity var(--med) var(--ease)}
 .toast.show{transform:translateX(-50%) translateY(0;opacity:1}
 /* Modal overlay */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp var(--med) var(--ease)}
-.modal{background:var(--surface);border-radius:var(--r-xl);max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:24px}
-.modal-title{font:700 22px/28px system-ui, sans-serif;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.modal-title .material-symbols-outlined{color:var(--primary)}
 /* Toggle row */
 .toggle-row{display:flex;gap:8px;margin-bottom:12px}
 /* Custom rule input area */
@@ -134,45 +147,37 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Scrollbar */
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--outline-variant);border-radius:3px}
 /* Version badge */
-.version{font:400 10px/14px system-ui, sans-serif;color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
+.version{font:400 10px/14px 'Noto Sans SC';color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
 /* Format chips */
-.format-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px system-ui, sans-serif;cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:all var(--fast) var(--ease)}
-.format-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
-.format-chip:hover{background:var(--sc)}
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.filter-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),border-color var(--fast) var(--ease)}
+.filter-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.filter-chip:hover{background:var(--sc)}
 /* Dict table */
 .dict-table{width:100%;border-collapse:collapse;margin-top:8px}
-.dict-table th,.dict-table td{padding:8px 12px;text-align:left;font:400 13px/18px system-ui, sans-serif;border-bottom:1px solid var(--outline-variant)}
+.dict-table th,.dict-table td{padding:8px 12px;text-align:left;font:400 13px/18px 'Noto Sans SC';border-bottom:1px solid var(--outline-variant)}
 .dict-table th{font-weight:500;color:var(--on-surface-variant)}
 .dict-table td:first-child{color:var(--error);font-family:monospace}
 .dict-table td:last-child{color:var(--primary)}
 /* Marketplace */
 .market-card{background:var(--sc);border-radius:var(--r-md);padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .market-card .info{flex:1;min-width:0}
-.market-card .title{font:500 14px/20px system-ui, sans-serif;color:var(--on-surface)}
-.market-card .desc{font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);margin-top:4px}
-.market-card .meta{font:400 11px/14px system-ui, sans-serif;color:var(--outline);margin-top:4px}
+.market-card .title{font:500 14px/20px 'Noto Sans SC';color:var(--on-surface)}
+.market-card .desc{font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
+.market-card .meta{font:400 11px/14px 'Noto Sans SC';color:var(--outline);margin-top:4px}
 /* Homophone tag */
-.homo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--tertiary-container);border-radius:12px;font:400 12px/16px system-ui, sans-serif;margin:2px}
+.homo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--tertiary-container);border-radius:12px;font:400 12px/16px 'Noto Sans SC';margin:2px}
 .homo-tag .arrow{color:var(--outline);font-size:10px}
-</style>
 
-/* ========== MD3 Ripple ========== */
-.ripple-host{position:relative;overflow:hidden}
-.ripple-host::after{content:'';position:absolute;inset:0;background:currentColor;opacity:0;pointer-events:none;border-radius:inherit;transition:opacity var(--fast) var(--ease)}
-.ripple-host:hover::after{opacity:0.08}
-.ripple-host:active::after{opacity:0.12}
-@keyframes ripple-wave{from{transform:scale(0);opacity:.3}to{transform:scale(2.5);opacity:0}}
-.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.3;transform:scale(0);animation:ripple-wave .6s var(--ease);pointer-events:none}
 
 /* ========== MD3 State Layer ========== */
 .state-layer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;transition:opacity var(--fast) var(--ease)}
 
 /* ========== MD3 Snackbar ========== */
-.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px system-ui, sans-serif;box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
+.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:transform var(--med) var(--ease),opacity var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
 .snackbar.show{transform:translateX(-50%) translateY(0);opacity:1}
 .snackbar .snack-text{flex:1}
-.snackbar .snack-action{background:none;border:none;color:var(--inverse-primary);font:500 14px/20px system-ui, sans-serif;cursor:pointer;padding:0 8px;height:36px;border-radius:18px}
+.snackbar .snack-action{background:none;border:none;color:var(--inverse-primary);font:500 14px/20px 'Noto Sans SC';cursor:pointer;padding:0 8px;height:36px;border-radius:18px}
 .snackbar .snack-action:hover{background:rgba(208,188,255,.12)}
 
 /* ========== MD3 Dialog ========== */
@@ -182,8 +187,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .dialog-scrim.open .dialog{transform:scale(1)}
 .dialog-icon{text-align:center;margin-bottom:16px}
 .dialog-icon .material-symbols-outlined{font-size:24px;color:var(--primary)}
-.dialog-title{font:700 24px/32px system-ui, sans-serif;color:var(--on-surface);margin-bottom:16px}
-.dialog-content{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);margin-bottom:24px}
+.dialog-title{font:700 24px/32px 'Noto Sans SC';color:var(--on-surface);margin-bottom:16px}
+.dialog-content{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-bottom:24px}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px}
 
 /* ========== MD3 Bottom Sheet ========== */
@@ -194,9 +199,9 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .sheet-handle{width:32px;height:4px;background:var(--outline-variant);border-radius:2px;margin:0 auto 16px}
 
 /* ========== MD3 FAB ========== */
-.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--e2);transition:all var(--med) var(--ease);z-index:40}
+.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--e2);transition:background var(--med) var(--ease),box-shadow var(--med) var(--ease),transform var(--med) var(--ease);z-index:40}
 .fab:hover{box-shadow:0 4px 8px rgba(0,0,0,.3)}
-.fab:active{transform:scale(.92)}
+.fab:active{opacity:.8}
 .fab .material-symbols-outlined{font-size:24px}
 .fab.extended{width:auto;padding:0 20px;border-radius:16px;gap:8px}
 @media(max-width:768px){.fab{bottom:96px;right:16px}}
@@ -213,22 +218,22 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .divider-middle{margin:8px 16px}
 
 /* ========== MD3 Badge ========== */
-.badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--error);color:var(--error-container);font:500 11px/16px system-ui, sans-serif;text-align:center;display:none}
+.badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--error);color:var(--error-container);font:500 11px/16px 'Noto Sans SC';text-align:center;display:none}
 .badge.show{display:block}
 
 /* ========== MD3 Tooltip ========== */
-.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--inverse-surface);color:var(--inverse-on);padding:4px 8px;border-radius:var(--r-sm);font:400 12px/16px system-ui, sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--fast) var(--ease);z-index:100}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--inverse-surface);color:var(--inverse-on);padding:4px 8px;border-radius:var(--r-sm);font:400 12px/16px 'Noto Sans SC';white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--fast) var(--ease);z-index:100}
 *:hover>.tooltip{opacity:1}
 
 /* ========== MD3 Search Bar ========== */
 .search-bar{display:flex;align-items:center;gap:8px;height:56px;padding:0 16px;background:var(--sc-high);border-radius:var(--r-xl);box-shadow:var(--e1);margin-bottom:16px}
 .search-bar .material-symbols-outlined{color:var(--on-surface-variant);font-size:24px}
-.search-bar input{flex:1;border:none;background:none;font:400 16px/24px system-ui, sans-serif;color:var(--on-surface);outline:none}
+.search-bar input{flex:1;border:none;background:none;font:400 16px/24px 'Noto Sans SC';color:var(--on-surface);outline:none}
 .search-bar input::placeholder{color:var(--on-surface-variant)}
 
 /* ========== MD3 Segmented Button ========== */
 .segmented-btn-group{display:inline-flex;border:1px solid var(--outline);border-radius:20px;overflow:hidden}
-.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px system-ui, sans-serif;color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:all var(--fast) var(--ease)}
+.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:background var(--fast) var(--ease),color var(--fast) var(--ease)}
 .segmented-btn:last-child{border-right:none}
 .segmented-btn.active{background:var(--secondary-container);color:var(--on-secondary-container)}
 .segmented-btn:hover:not(.active){background:var(--sc)}
@@ -244,8 +249,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .list-item:active{background:rgba(28,27,31,.12)}
 .list-item .leading{color:var(--on-surface-variant)}
 .list-item .content{flex:1;min-width:0}
-.list-item .headline{font:400 16px/24px system-ui, sans-serif;color:var(--on-surface)}
-.list-item .supporting{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant)}
+.list-item .headline{font:400 16px/24px 'Noto Sans SC';color:var(--on-surface)}
+.list-item .supporting{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant)}
 .list-item .trailing{color:var(--on-surface-variant)}
 
 /* ========== MD3 Animate ========== */
@@ -261,6 +266,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .card-elevated:hover{box-shadow:var(--e2)}
 .card-filled{background:var(--sc-highest);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
 .card-outlined{background:var(--surface);border:1px solid var(--outline-variant);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
+
 </style>
 </head>
 <body>
@@ -284,19 +290,19 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
       <div class="icon-wrap"><span class="material-symbols-outlined">psychology</span></div>
       <span class="label">AI</span>
     </a>
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.4.0</span>
   </nav>
 
   <div class="main-content">
     <!-- ===== PAGE: CLEAN ===== -->
     <div class="page active" id="page-clean">
-      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">auto_stories</span>
         Clear Book
       </h1>
 
       <!-- Upload -->
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">upload_file</span>选择文件</div>
         <div class="upload-zone" id="uploadZone">
           <span class="material-symbols-outlined">cloud_upload</span>
@@ -310,8 +316,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         </div>
       </div>
 
+      <div class="divider"></div>
+
       <!-- Rules -->
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">tune</span>清洗规则</div>
         <div class="toggle-row">
           <button class="btn btn-text" onclick="setAllRules(true)"><span class="material-symbols-outlined">check_box</span>全开</button>
@@ -320,8 +328,9 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         <div class="rules-grid" id="rulesGrid"></div>
 
         <!-- Homophone Dictionary -->
-        <div class="card-title" style="margin-top:24px"><span class="material-symbols-outlined">dictionary</span>同音字混淆词典</div>
-        <p style="font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);margin-bottom:12px">
+        <div class="divider" style="margin-top:16px"></div>
+        <div class="card-title" style="margin-top:16px"><span class="material-symbols-outlined">dictionary</span>同音字混淆词典</div>
+        <p style="font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);margin-bottom:12px">
           内置广告混淆词典 + 智能拼音检测。可自定义扩展。
         </p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
@@ -338,7 +347,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
         <div id="userDictList"></div>
 
         <!-- Custom regex -->
-        <div class="card-title" style="margin-top:24px"><span class="material-symbols-outlined">add_circle</span>自定义正则规则</div>
+        <div class="divider" style="margin-top:16px"></div>
+        <div class="card-title" style="margin-top:16px"><span class="material-symbols-outlined">add_circle</span>自定义正则规则</div>
         <div class="rule-input-area">
           <textarea id="customPattern" placeholder="输入正则表达式，如：第.{1,3}章\s+.*?推荐" rows="2"></textarea>
           <button class="btn btn-tonal" onclick="addCustomRule()"><span class="material-symbols-outlined">add</span></button>
@@ -363,10 +373,21 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
       </div>
 
       <!-- Stats -->
+      <div class="divider" style="margin-bottom:16px"></div>
+      <div id="cleanProgress" style="display:none;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="material-symbols-outlined" style="color:var(--primary);font-size:20px">autorenew</span>
+          <span id="progressText" style="font:500 14px/20px 'Noto Sans SC';color:var(--on-surface)">清洗中...</span>
+        </div>
+        <div class="progress-linear">
+          <div class="bar" id="progressBar" style="width:0%"></div>
+        </div>
+      </div>
       <div id="stats" style="display:none"></div>
 
       <!-- Preview -->
-      <div class="card" id="previewCard" style="display:none">
+      <div class="divider" style="margin-bottom:16px"></div>
+      <div class="card-elevated" id="previewCard" style="display:none">
         <div class="card-title"><span class="material-symbols-outlined">preview</span>对比预览</div>
         <div class="preview-container">
           <div class="preview-box">
@@ -383,11 +404,11 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: CONVERT ===== -->
     <div class="page" id="page-convert">
-      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">swap_horiz</span>
         格式转换
       </h1>
-      <div class="card">
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">upload_file</span>选择文件</div>
         <div class="upload-zone" id="convertUploadZone">
           <span class="material-symbols-outlined">cloud_upload</span>
@@ -400,13 +421,16 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           <span class="size" id="convertFileSize"></span>
         </div>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-outlined">
         <div class="card-title"><span class="material-symbols-outlined">settings</span>转换设置</div>
-        <div class="format-chips">
-          <div class="format-chip active" data-fmt="auto">自动检测</div>
-          <div class="format-chip" data-fmt="epub">EPUB</div>
-          <div class="format-chip" data-fmt="html">HTML</div>
-          <div class="format-chip" data-fmt="pdf">PDF</div>
+        <div class="chip-group">
+          <button class="filter-chip active" data-fmt="auto"><span class="chip-icon">auto_fix_high</span>自动检测</button>
+          <button class="filter-chip" data-fmt="epub">EPUB</button>
+          <button class="filter-chip" data-fmt="html">HTML</button>
+          <button class="filter-chip" data-fmt="pdf">PDF</button>
         </div>
         <label class="rule-item" style="padding:4px 0">
           <div class="rule-label"><span>HTML 转换时去除广告/脚本/导航</span></div>
@@ -426,7 +450,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: MARKET ===== -->
     <div class="page" id="page-market">
-      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">store</span>
         规则市场
       </h1>
@@ -450,20 +474,23 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: AI ===== -->
     <div class="page" id="page-ai">
-      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 class="page-title">
         <span class="material-symbols-outlined" style="color:var(--primary)">psychology</span>
         AI 规则生成
       </h1>
-      <div class="card">
+      <div class="card-filled">
         <div class="card-title"><span class="material-symbols-outlined">info</span>使用方法</div>
-        <ol style="font:400 14px/24px system-ui, sans-serif;color:var(--on-surface);padding-left:20px">
+        <ol class="md3-list">
           <li>点击下方<strong>复制提示词</strong></li>
           <li>将提示词 + 你的 TXT 文件发给任意 AI（ChatGPT / Claude / Gemini 等）</li>
           <li>AI 会分析你的文件并返回清洗规则 JSON</li>
           <li>将 JSON 粘贴到下方，点击<strong>导入规则</strong></li>
         </ol>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-elevated">
         <div class="card-title"><span class="material-symbols-outlined">prompt_suggest</span>提示词</div>
         <textarea id="aiPrompt" readonly style="min-height:200px;font-size:13px"></textarea>
         <div class="btn-row" style="margin-top:12px">
@@ -472,7 +499,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           </button>
         </div>
       </div>
-      <div class="card">
+
+      <div class="divider"></div>
+
+      <div class="card-outlined">
         <div class="card-title"><span class="material-symbols-outlined">input</span>粘贴 AI 返回的 JSON</div>
         <textarea id="aiResponse" placeholder='粘贴 AI 返回的 JSON，格式如：
 {
@@ -495,9 +525,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
 
-</body>
+
 <script>
 // ==================== MD3 COMPONENT CLASSES ====================
 
@@ -581,27 +610,6 @@ class ProgressLinear {
   remove() { this.el.remove(); }
 }
 
-// Ripple effect
-function addRipple(e) {
-  const el = e.currentTarget;
-  const rect = el.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  const ripple = document.createElement('span');
-  ripple.className = 'ripple';
-  ripple.style.width = ripple.style.height = size + 'px';
-  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-  ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-  el.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
-}
-
-function initRipples() {
-  document.querySelectorAll('.btn, .nav-item, .list-item, .fab, .format-chip, .tab, .rule-item').forEach(el => {
-    el.classList.add('ripple-host');
-    el.addEventListener('click', addRipple);
-  });
-}
-
 // Dialog instance
 const dialog = new Dialog();
 const snackbar = new Snackbar();
@@ -617,7 +625,8 @@ function showConfirm({ icon, title, content, confirmText = '确定', cancelText 
   });
 }
 
-<script>
+
+
 // ==================== PINYIN TABLE ====================
 const PY_MAP = {
   '啊':'a','阿':'a','呵':'a','嗄':'a','锕':'a',
@@ -1023,18 +1032,27 @@ const HOMOPHONE_DICT = [
   {dirty:'赚前',clean:'赚钱'},{dirty:'砖钱',clean:'赚钱'},{dirty:'转钱',clean:'赚钱'},
   {dirty:'加群',clean:''},{dirty:'进群',clean:''},{dirty:'裙',clean:'群'},
   {dirty:'某宝',clean:'淘宝'},{dirty:'某东',clean:'京东'},{dirty:'某音',clean:'抖音'},{dirty:'某手',clean:'快手'},
-  {dirty:'公重号',clean:'公众号'},{dirty:'公粽号',clean:'公众号'},
+  {dirty:'公重号',clean:'公众号'},{dirty:'公粽号',clean:'公众号'},{dirty:'公从号',clean:'公众号'},
+  {dirty:'淘宝宝',clean:'淘宝'},{dirty:'京冬',clean:'京东'},{dirty:'拼夕夕',clean:'拼多多'},
+  {dirty:'抖因',clean:'抖音'},{dirty:'快守',clean:'快手'},
+  {dirty:'加v',clean:'加微信'},{dirty:'加V',clean:'加微信'},{dirty:'➕v',clean:'加微信'},
+  {dirty:'扣裙',clean:'QQ群'},
   {dirty:'书币',clean:''},{dirty:'书币',clean:''},
 ];
 
 // ==================== BUILT-IN RULES ====================
 const RULE_GROUPS = [
   {id:'ads',label:'广告 & 推广',icon:'campaign',rules:[
-    {id:'url',label:'网址/域名',hint:'www.xxx.com、http://...',regex:/(?:https?:\/\/|www\.|m\.)[^\s\u4e00-\u9fff]{2,}/gi},
+    {id:'url',label:'网址/域名',hint:'www.xxx.com、http://...',regex:/(?:^.*https?:\/\/[^\s]{2,}.*$)|(?:^.*www\.[^\s]{2,}.*$)|(?:^.*m\.[^\s]{2,}.*$)/gim},
     {id:'promo',label:'推广话术',hint:'关注公众号、下载APP...',regex:/(?:最新章节推荐|关注公众号|下载(?:APP|客户端)|加入书架|收藏本站|手机阅读|请到.{2,10}阅读|微信(?:号|搜索)|扫码(?:关注|领取)|(?:免费|限时)(?:阅读|领取)|(?:全本|完本)(?:小说)?(?:阅读|下载))/gi},
-    {id:'watermark',label:'站点水印',hint:'本小说来自XX网...',regex:/(?:本小说(?:来自|由).{2,15}(?:提供|发布|首发)|(?:TXT|txt)(?:下载|电子书).{0,10}(?:www\.|http)|(?:来源|出处)[:：].{2,20}(?:网|站|\.com|\.cn))/gi},
+    {id:'watermark',label:'站点水印',hint:'本小说来自XX网...',regex:/(?:^.*申明[:：]?.*(?:本书|本小说|本文).*(?:收集|整理|制作|提供|发布|首发).*$)|(?:^.*(?:本书|本小说|本文)(?:由|来自|来源于).*(?:收集|整理|制作|提供|发布|首发).*$)|(?:^.*(?:TXT|txt)(?:下载|电子书).*(?:www\.|http).*$)|(?:^.*(?:来源|出处)[:：].*(?:网|站|\.com|\.cn).*$)|(?:^.*(?:本小说|本书)(?:由|来自).*(?:提供|发布|首发).*$)/gim},
     {id:'paging',label:'翻页提示',hint:'本章未完，请点击下一页...',regex:/(?:本章未完[，,]?请(?:点击|前往|到).{0,6}(?:下一页|阅读|继续)|(?:上|下)(?:一)?(?:页|章)(?:快捷键)?|←\s*(?:上|前)|→\s*(?:下|后)|(?:返回|进入)(?:书目|目录|首页))/gi},
     {id:'guide',label:'引导语',hint:'请到XX阅读完整版...',regex:/(?:请(?:到|前往|访问|登录).{2,15}(?:阅读|查看|获取)(?:完整|全部)(?:版|内容|章节)|(?:手机|电脑)(?:用户|版)(?:请)?(?:访问|阅读|打开)|(?:本站|本章).{0,5}(?:最新|全部)(?:章节|内容))/gi},
+    {id:'recommend',label:'推荐列表',hint:'热门小说推荐...',regex:/(?:最新|热门|好看)(?:的)?(?:小说|书|作品)(?:推荐|推荐榜|排行榜)[:：]?(?:\s*\d+[.、．].{2,20}(?:点击|阅读|查看)){2,}/gi},
+    {id:'inlineAd',label:'章节内嵌广告',hint:'插入正文的推广...',regex:/(?:ps[：:]?.{0,5}(?:帮忙|帮忙点).{0,20}(?:广告|公众号|关注)|(?:小伙伴们|亲们|书友们).{0,10}(?:点击|关注|扫码|帮忙)|(?:推荐好友|分享给).{0,15}(?:阅读|关注|领取))/gi},
+    {id:'embedWatermark',label:'嵌入式水印',hint:'!手机!、!圈!、!网!...',regex:/!(?:手机|圈|子|网|微|信|公|众|号|Q|扣|群|加|关注|领取|免费|福利|赚|钱|前|宝|东|音|手|书|币|APP|客户端|阅读|下载|加群|进群|扫码|红包|优惠|折扣|返现)\s*!/gi},
+    {id:'linkPara',label:'含链接段落',hint:'整个段落包含链接...',regex:null,custom:true},
+    {id:'separator',label:'分隔线',hint:'------、====...  ',regex:/^[-=_*]{4,}\s*$/gm},
   ]},
   {id:'whitespace',label:'空白 & 格式',icon:'space_bar',rules:[
     {id:'multiBlank',label:'压缩多余空行',hint:'连续2+空行→1行',regex:null,custom:true},
@@ -1070,6 +1088,7 @@ let fileName = '';
 let convertedText = '';
 let convertedFileName = '';
 let marketplacePacks = [];
+let MARKET_CATEGORIES = [];
 
 RULE_GROUPS.forEach(g => g.rules.forEach(r => { rules[r.id] = true; }));
 
@@ -1109,14 +1128,21 @@ function renderRules() {
 
 function toggleRule(id,val,exclusiveId) {
   rules[id] = val;
-  if (val && id==='allBlank') { rules['multiBlank']=false; renderRules(); }
-  if (val && id==='multiBlank') { rules['allBlank']=false; renderRules(); }
-  if (val && exclusiveId) { rules[exclusiveId]=false; renderRules(); }
+  // Update exclusive toggle without full re-render
+  if (val && id==='allBlank') { rules['multiBlank']=false; updateToggle('multiBlank',false); }
+  if (val && id==='multiBlank') { rules['allBlank']=false; updateToggle('allBlank',false); }
+  if (val && exclusiveId) { rules[exclusiveId]=false; updateToggle(exclusiveId,false); }
+}
+function updateToggle(id,val) {
+  const checkbox = document.querySelector(`input[onchange*="${id}"]`);
+  if (checkbox) checkbox.checked = val;
 }
 
 function setAllRules(val) {
-  Object.keys(rules).forEach(k => rules[k] = val);
-  renderRules();
+  Object.keys(rules).forEach(k => {
+    rules[k] = val;
+    updateToggle(k, val);
+  });
 }
 
 // ==================== SMART HOMOPHONE DETECTION ====================
@@ -1167,29 +1193,29 @@ function detectByPinyin(text) {
     const hasPromoContext = PROMO_CONTEXT.some(w => line.includes(w));
 
     for (let i = 0; i < line.length; i++) {
-      // Get a window of Chinese characters
-      let window = '';
+      // Get a text window of Chinese characters
+      let textWindow = '';
       let j = i;
       while (j < line.length && j < i + windowSize) {
         if (/[\u4e00-\u9fff]/.test(line[j])) {
-          window += line[j];
+          textWindow += line[j];
         } else if (/[a-zA-Z0-9]/.test(line[j])) {
-          window += line[j];
+          textWindow += line[j];
         }
         j++;
       }
-      if (window.length < 2) continue;
+      if (textWindow.length < 2) continue;
 
-      const windowPinyin = textToPinyin(window);
+      const windowPinyin = textToPinyin(textWindow);
 
       for (const sensitive of SENSITIVE_PINYIN) {
         const sim = similarity(windowPinyin, sensitive.py);
         if (sim >= 0.75 && hasPromoContext) {
-          changes.push({start: i, end: j, original: window, replacement: sensitive.word, confidence: sim});
+          changes.push({start: i, end: j, original: textWindow, replacement: sensitive.word, confidence: sim});
           i = j - 1;
           break;
         } else if (sim >= 0.85) {
-          changes.push({start: i, end: j, original: window, replacement: sensitive.word, confidence: sim});
+          changes.push({start: i, end: j, original: textWindow, replacement: sensitive.word, confidence: sim});
           i = j - 1;
           break;
         }
@@ -1234,15 +1260,82 @@ function handleFile(file) {
   fileName = file.name;
   const reader = new FileReader();
   reader.onload = e => {
-    originalText = e.target.result;
+    const buffer = e.target.result;
+    const uint8 = new Uint8Array(buffer);
+    
+    // Detect encoding
+    const encoding = detectEncoding(uint8);
+    
+    // Decode with detected encoding
+    try {
+      const decoder = new TextDecoder(encoding);
+      originalText = decoder.decode(uint8);
+    } catch(err) {
+      try { originalText = new TextDecoder('UTF-8').decode(uint8); }
+      catch(e) { try { originalText = new TextDecoder('GBK').decode(uint8); }
+      catch(e2) { originalText = new TextDecoder('GB18030').decode(uint8); } }
+    }
+    
+    // Remove BOM
+    if (originalText.charCodeAt(0) === 0xFEFF) originalText = originalText.substring(1);
+    
     document.getElementById('fileInfo').classList.add('show');
     document.getElementById('fileName').textContent = fileName;
-    document.getElementById('fileSize').textContent = formatSize(file.size);
+    document.getElementById('fileSize').textContent = formatSize(file.size) + (encoding !== 'UTF-8' ? ' (' + encoding + ')' : '');
     document.getElementById('btnClean').disabled = false;
     hideResult();
-    snackbar.show("文件已加载");
+    snackbar.show("文件已加载" + (encoding !== 'UTF-8' ? '（' + encoding + ' 编码，已自动转换）' : ''));
   };
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
+}
+
+function detectEncoding(uint8) {
+  // Check BOM
+  if (uint8.length >= 3 && uint8[0] === 0xEF && uint8[1] === 0xBB && uint8[2] === 0xBF) return 'UTF-8';
+  if (uint8.length >= 2 && uint8[0] === 0xFF && uint8[1] === 0xFE) return 'UTF-16LE';
+  if (uint8.length >= 2 && uint8[0] === 0xFE && uint8[1] === 0xFF) return 'UTF-16BE';
+  
+  let gbkScore = 0, utf8Score = 0, big5Score = 0, shiftJisScore = 0, eucKrScore = 0;
+  const len = Math.min(uint8.length, 20000);
+  
+  for (let i = 0; i < len; i++) {
+    if (uint8[i] <= 0x7F) continue;
+    
+    // UTF-8: 110xxxxx 10xxxxxx or 1110xxxx 10xxxxxx 10xxxxxx
+    if ((uint8[i] & 0xE0) === 0xC0 && i + 1 < len && (uint8[i+1] & 0xC0) === 0x80) {
+      utf8Score++; i++;
+    } else if ((uint8[i] & 0xF0) === 0xE0 && i + 2 < len && (uint8[i+1] & 0xC0) === 0x80 && (uint8[i+2] & 0xC0) === 0x80) {
+      utf8Score++; i += 2;
+    } else if ((uint8[i] & 0xF8) === 0xF0 && i + 3 < len && (uint8[i+1] & 0xC0) === 0x80 && (uint8[i+2] & 0xC0) === 0x80 && (uint8[i+3] & 0xC0) === 0x80) {
+      utf8Score++; i += 3;
+    }
+    // GBK/GB2312/GB18030: first byte 0x81-0xFE, second byte 0x40-0xFE
+    else if (i + 1 < len && uint8[i] >= 0x81 && uint8[i] <= 0xFE && uint8[i+1] >= 0x40 && uint8[i+1] <= 0xFE) {
+      gbkScore++; i++;
+    }
+    // Big5: first byte 0x81-0xFE, second byte 0x40-0x7E or 0xA1-0xFE
+    else if (i + 1 < len && uint8[i] >= 0x81 && uint8[i] <= 0xFE && ((uint8[i+1] >= 0x40 && uint8[i+1] <= 0x7E) || (uint8[i+1] >= 0xA1 && uint8[i+1] <= 0xFE))) {
+      big5Score++; i++;
+    }
+    // Shift_JIS: first byte 0x81-0x9F or 0xE0-0xEF, second byte 0x40-0x7E or 0x80-0xFC
+    else if (i + 1 < len && ((uint8[i] >= 0x81 && uint8[i] <= 0x9F) || (uint8[i] >= 0xE0 && uint8[i] <= 0xEF)) && ((uint8[i+1] >= 0x40 && uint8[i+1] <= 0x7E) || (uint8[i+1] >= 0x80 && uint8[i+1] <= 0xFC))) {
+      shiftJisScore++; i++;
+    }
+    // EUC-KR: first byte 0xA1-0xFE, second byte 0xA1-0xFE
+    else if (i + 1 < len && uint8[i] >= 0xA1 && uint8[i] <= 0xFE && uint8[i+1] >= 0xA1 && uint8[i+1] <= 0xFE) {
+      eucKrScore++; i++;
+    }
+  }
+  
+  const scores = [
+    {enc: 'UTF-8', score: utf8Score},
+    {enc: 'GBK', score: gbkScore},
+    {enc: 'Big5', score: big5Score},
+    {enc: 'Shift_JIS', score: shiftJisScore},
+    {enc: 'EUC-KR', score: eucKrScore}
+  ].sort((a, b) => b.score - a.score);
+  
+  return scores[0].score > 0 ? scores[0].enc : 'UTF-8';
 }
 
 function formatSize(bytes) {
@@ -1251,149 +1344,178 @@ function formatSize(bytes) {
   return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
+function getByteLength(str) {
+  // Calculate actual UTF-8 byte length
+  var bytes = 0;
+  for (var i = 0; i < str.length; i++) {
+    var code = str.charCodeAt(i);
+    if (code <= 0x7F) bytes += 1;
+    else if (code <= 0x7FF) bytes += 2;
+    else if (code >= 0xD800 && code <= 0xDBFF) { bytes += 4; i++; } // surrogate pair
+    else bytes += 3;
+  }
+  return bytes;
+}
+
 // ==================== CLEANING ENGINE ====================
-function cleanText() {
+async function cleanText() {
   if (!originalText) return;
-  let result = originalText;
-  const stats = {};
-
-  // Whitespace rules
-  if (rules['allBlank']) {
-    const before = result.split('\n').length;
-    result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
-    stats['完全去空行'] = before - result.split('\n').length;
-  } else if (rules['multiBlank']) {
-    const matches = result.match(/\n{3,}/g) || [];
-    result = result.replace(/\n{3,}/g, '\n\n');
-    stats['压缩多余空行'] = matches.length;
-  }
-
-  if (rules['trimLine']) {
-    const matches = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
-    result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
-    stats['行首尾空白'] = matches.length;
-  }
-
-  // Regex rules
-  RULE_GROUPS.forEach(g => {
-    g.rules.forEach(r => {
-      if (r.custom) return;
-      if (!rules[r.id]) return;
-      const matches = result.match(r.regex) || [];
-      if (matches.length) {
-        result = result.replace(r.regex, '');
-        stats[r.label] = matches.length;
-      }
-    });
-  });
-
-  // Custom rules
-  customRules.forEach(r => {
-    const matches = result.match(r.regex) || [];
-    if (matches.length) {
-      result = result.replace(r.regex, '');
-      stats['自定义: ' + r.pattern] = matches.length;
+  
+  var progressEl = document.getElementById('cleanProgress');
+  var progressBar = document.getElementById('progressBar');
+  var progressText = document.getElementById('progressText');
+  progressEl.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = '准备清洗...';
+  document.getElementById('btnClean').disabled = true;
+  
+  var result = originalText;
+  var stats = {};
+  var steps = [];
+  
+  // Collect steps
+  steps.push({name: '空白处理', fn: function() {
+    if (rules['allBlank']) {
+      var before = result.split('\n').length;
+      result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
+      stats['完全去空行'] = before - result.split('\n').length;
+    } else if (rules['multiBlank']) {
+      var m = result.match(/\n{3,}/g) || [];
+      result = result.replace(/\n{3,}/g, '\n\n');
+      stats['压缩多余空行'] = m.length;
     }
-  });
-
-  // Homophone dict
-  if (rules['homophone']) {
-    const allDict = [...HOMOPHONE_DICT, ...userHomophoneDict];
-    let hCount = 0;
-    allDict.forEach(({dirty, clean}) => {
-      const re = new RegExp(dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      const matches = result.match(re);
-      if (matches) {
-        hCount += matches.length;
-        result = result.replace(re, clean);
-      }
+    if (rules['trimLine']) {
+      var m = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
+      result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
+      stats['行首尾空白'] = m.length;
+    }
+  }});
+  
+  steps.push({name: '正则规则', fn: function() {
+    RULE_GROUPS.forEach(function(g) {
+      g.rules.forEach(function(r) {
+        if (r.custom || !rules[r.id]) return;
+        try {
+          var m = result.match(r.regex);
+          if (m && m.length) { result = result.replace(r.regex, ''); stats[r.label] = m.length; }
+        } catch(e) {}
+      });
+    });
+  }});
+  
+  steps.push({name: '自定义规则', fn: function() {
+    customRules.forEach(function(r) {
+      try {
+        var m = result.match(r.regex);
+        if (m && m.length) { result = result.replace(r.regex, ''); stats['自定义: ' + r.pattern] = m.length; }
+      } catch(e) {}
+    });
+  }});
+  
+  steps.push({name: '同音字', fn: function() {
+    if (!rules['homophone']) return;
+    var allDict = HOMOPHONE_DICT.concat(userHomophoneDict);
+    var hCount = 0;
+    allDict.forEach(function(item) {
+      try {
+        var escaped = item.dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var re = new RegExp(escaped, 'g');
+        var m = result.match(re);
+        if (m) { hCount += m.length; result = result.replace(re, item.clean); }
+      } catch(e) {}
     });
     if (hCount) stats['同音字混淆'] = hCount;
-  }
-
-  // Pinyin detection
-  if (rules['pinyinDetect']) {
-    const changes = detectByPinyin(result);
-    if (changes.length) {
-      // Apply high-confidence changes
-      let applied = 0;
-      changes.sort((a,b) => b.start - a.start).forEach(c => {
-        if (c.confidence >= 0.85) {
-          const line = result.split('\n');
-          // Simple line-level replacement
-          for (let i = 0; i < line.length; i++) {
-            if (line[i].includes(c.original)) {
-              line[i] = line[i].replace(c.original, c.replacement);
-              applied++;
-            }
-          }
-          result = line.join('\n');
-        }
-      });
-      if (applied) stats['拼音检测'] = applied;
+  }});
+  
+  steps.push({name: '含链接段落', fn: function() {
+    if (!rules['linkPara']) return;
+    var lines = result.split('\n');
+    var filtered = [];
+    var count = 0;
+    for (var i = 0; i < lines.length; i++) {
+      if (/https?:\/\/|www\.|\.com|\.net|\.cn/i.test(lines[i]) && lines[i].length < 300) {
+        count++;
+        continue;
+      }
+      filtered.push(lines[i]);
     }
-  }
-
-  // Pattern detection
-  if (rules['patternDetect']) {
-    const {result: patResult, count: patCount} = detectPatterns(result);
-    result = patResult;
-    if (patCount) stats['模式识别'] = patCount;
-  }
-
-  // Complex rules
-  if (rules['dupPara']) {
-    const lines = result.split('\n');
-    const deduped = [];
-    let count = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (i > 0 && lines[i].trim() && lines[i].trim() === lines[i-1]?.trim()) { count++; continue; }
+    result = filtered.join('\n');
+    if (count) stats['含链接段落'] = count;
+  }});
+  
+  steps.push({name: '去重', fn: function() {
+    if (!rules['dupPara']) return;
+    var lines = result.split('\n');
+    var deduped = [];
+    var count = 0;
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0 && lines[i].trim() && lines[i].trim() === (lines[i-1] || '').trim()) { count++; continue; }
       deduped.push(lines[i]);
     }
     result = deduped.join('\n');
     if (count) stats['重复段落去重'] = count;
-  }
-
-  if (rules['normalizeChapter']) {
-    const count = (result.match(/第\d+章/g) || []).length;
-    result = result.replace(/第(\d+)章/g, (_, n) => '第' + numToChinese(parseInt(n)) + '章');
-    if (count) stats['章节标题规范化'] = count;
-  }
-
-  if (rules['mergeParas']) {
-    const lines = result.split('\n');
-    const merged = [];
-    let count = 0;
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      const next = lines[i+1]?.trim();
+  }});
+  
+  steps.push({name: '章节规范化', fn: function() {
+    if (!rules['normalizeChapter']) return;
+    var m = result.match(/第\d+章/g) || [];
+    result = result.replace(/第(\d+)章/g, function(_, n) {
+      var d = ['零','一','二','三','四','五','六','七','八','九'];
+      var num = parseInt(n);
+      if (num <= 10) return num === 10 ? '第十' : '第' + d[num];
+      if (num < 20) return '第十' + d[num-10];
+      if (num < 100) { var t=Math.floor(num/10),o=num%10; return '第'+d[t]+'十'+(o?d[o]:''); }
+      return '第' + n;
+    });
+    if (m.length) stats['章节标题规范化'] = m.length;
+  }});
+  
+  steps.push({name: '合并段落', fn: function() {
+    if (!rules['mergeParas']) return;
+    var lines = result.split('\n');
+    var merged = [];
+    var count = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      var next = (lines[i+1] || '').trim();
       if (line && next && line.length < 20 && next.length < 80 && !line.match(/^[第章]/) && !next.match(/^[第章]/)) {
         merged.push(line + next); i++; count++;
       } else { merged.push(lines[i]); }
     }
     result = merged.join('\n');
     if (count) stats['短段落合并'] = count;
-  }
-
-  if (rules['dedupChapter']) {
-    const chapters = result.split(/(?=第[一二三四五六七八九十百千\d]+章)/);
-    const seen = new Map();
-    let count = 0;
-    const deduped = [];
-    for (const ch of chapters) {
-      const key = ch.substring(0, 100).trim();
-      if (key && seen.has(key)) { count++; continue; }
-      if (key) seen.set(key, true);
-      deduped.push(ch);
+  }});
+  
+  // Execute steps with yielding
+  var stepIdx = 0;
+  function runStep() {
+    if (stepIdx >= steps.length) {
+      // Done
+      result = result.replace(/\n{3,}/g, '\n\n').trim();
+      cleanedText = result;
+      progressEl.style.display = 'none';
+      document.getElementById('btnClean').disabled = false;
+      showResult(stats);
+      snackbar.show('清洗完成');
+      return;
     }
-    result = deduped.join('');
-    if (count) stats['重复章节去重'] = count;
+    var pct = Math.round((stepIdx / steps.length) * 100);
+    progressText.textContent = steps[stepIdx].name + '...';
+    progressBar.style.width = pct + '%';
+    try {
+      steps[stepIdx].fn();
+    } catch(e) {
+      snackbar.show('清洗出错: ' + e.message);
+      progressEl.style.display = 'none';
+      document.getElementById('btnClean').disabled = false;
+      return;
+    }
+    stepIdx++;
+    setTimeout(runStep, 0);
   }
-
-  result = result.replace(/\n{3,}/g, '\n\n').trim();
-  cleanedText = result;
-  showResult(stats);
+  setTimeout(runStep, 0);
 }
+
 
 function numToChinese(n) {
   const digits = ['零','一','二','三','四','五','六','七','八','九'];
@@ -1408,17 +1530,19 @@ function numToChinese(n) {
 function showResult(stats) {
   const statsEl = document.getElementById('stats');
   const entries = Object.entries(stats).filter(([,v]) => v > 0);
-  const totalSaved = originalText.length - cleanedText.length;
-  const pct = originalText.length > 0 ? ((totalSaved / originalText.length) * 100).toFixed(1) : 0;
+  const origBytes = getByteLength(originalText);
+  const cleanBytes = getByteLength(cleanedText);
+  const totalSaved = origBytes - cleanBytes;
+  const pct = origBytes > 0 ? ((totalSaved / origBytes) * 100).toFixed(1) : 0;
 
   statsEl.style.display = 'block';
   statsEl.innerHTML = `
     <div class="stats-bar">
       <div class="stats-summary">
         <span class="material-symbols-outlined">analytics</span>
-        <span>原文 <strong>${formatSize(originalText.length)}</strong></span>
+        <span>原文 <strong>${formatSize(origBytes)}</strong></span>
         <span class="stats-arrow">→</span>
-        <span>清洗后 <strong>${formatSize(cleanedText.length)}</strong></span>
+        <span>清洗后 <strong>${formatSize(cleanBytes)}</strong></span>
         <span class="stats-arrow">→</span>
         <span>减少 <strong style="color:var(--primary)">${formatSize(totalSaved)} (${pct}%)</strong></span>
         <span class="stats-sep">|</span>
@@ -1430,19 +1554,21 @@ function showResult(stats) {
     </div>
   `;
 
-  // Smart preview
+  // Smart preview - find first actual difference
   document.getElementById('previewCard').style.display = 'block';
   const origLines = originalText.split('\n');
   const cleanLines = cleanedText.split('\n');
   let diffIdx = 0;
-  const maxCheck = Math.min(origLines.length, cleanLines.length, 500);
+  const maxCheck = Math.min(origLines.length, cleanLines.length, 1000);
   for (let i = 0; i < maxCheck; i++) {
-    if (origLines[i] !== cleanLines[i]) { diffIdx = Math.max(0, i - 2); break; }
+    if (origLines[i] !== cleanLines[i]) { diffIdx = Math.max(0, i - 3); break; }
   }
-  document.getElementById('origPreview').textContent = origLines.slice(diffIdx, diffIdx + 40).join('\n');
-  document.getElementById('cleanPreview').textContent = cleanLines.slice(diffIdx, diffIdx + 40).join('\n');
-  document.getElementById('origStats').textContent = `${origLines.length} 行 · ${formatSize(originalText.length)}`;
-  document.getElementById('cleanStats').textContent = `${cleanLines.length} 行 · ${formatSize(cleanedText.length)}`;
+  const origSample = origLines.slice(diffIdx, diffIdx + 50).join('\n');
+  const cleanSample = cleanLines.slice(diffIdx, diffIdx + 50).join('\n');
+  document.getElementById('origPreview').textContent = origSample || originalText.substring(0, 2000);
+  document.getElementById('cleanPreview').textContent = cleanSample || cleanedText.substring(0, 2000);
+  document.getElementById('origStats').textContent = origLines.length + ' 行 · ' + formatSize(getByteLength(originalText));
+  document.getElementById('cleanStats').textContent = cleanLines.length + ' 行 · ' + formatSize(getByteLength(cleanedText));
 
   document.getElementById('btnDownload').style.display = '';
   document.getElementById('btnDownload').className = 'btn btn-filled';
@@ -1463,26 +1589,60 @@ function downloadResult() {
   const blob = new Blob([cleanedText], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  const dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  a.download = dlName;
   a.click();
   URL.revokeObjectURL(a.href);
-  snackbar.show(`已下载 ${a.download} (${formatSize(blob.size)})`);
+  snackbar.show(`已下载 ${dlName} (${formatSize(blob.size)})`);
 }
 
 function copyResult() {
-  navigator.clipboard.writeText(cleanedText).then(() => snackbar.show("已复制到剪贴板")).catch(() => {
-    const ta = document.createElement('textarea'); ta.value = cleanedText;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); snackbar.show("已复制到剪贴板");
-  });
+  const btn = document.getElementById('btnCopy');
+  const origText = btn.innerHTML;
+  
+  function showSuccess() {
+    btn.innerHTML = '<span class="material-symbols-outlined">check</span>已复制';
+    btn.className = 'btn btn-tonal';
+    snackbar.show('已复制到剪贴板 (' + formatSize(cleanedText.length) + ')');
+    setTimeout(() => { btn.innerHTML = origText; btn.className = 'btn btn-outlined'; }, 2000);
+  }
+  
+  function showFail() {
+    snackbar.show('复制失败，请手动选择文本复制');
+  }
+  
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cleanedText).then(showSuccess).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea'); ta.value = cleanedText;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showSuccess(); } catch(e) { showFail(); }
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement('textarea'); ta.value = cleanedText;
+      ta.style.cssText = 'position:fixed;left:-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showSuccess(); } catch(e) { showFail(); }
+      document.body.removeChild(ta);
+    }
+  } catch(e) { showFail(); }
 }
 
 function resetAll() {
   originalText = ''; cleanedText = ''; fileName = '';
   document.getElementById('fileInfo').classList.remove('show');
   document.getElementById('btnClean').disabled = true;
+  document.getElementById('btnDownload').style.display = 'none';
+  document.getElementById('btnCopy').style.display = 'none';
+  document.getElementById('btnReset').style.display = 'none';
+  document.getElementById('stats').style.display = 'none';
+  document.getElementById('previewCard').style.display = 'none';
   fileInput.value = '';
   hideResult();
+  snackbar.show('已重置');
 }
 
 // ==================== CUSTOM RULES ====================
@@ -1560,22 +1720,13 @@ function loadUserDict() {
 }
 
 function showBuiltinDict() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title"><span class="material-symbols-outlined">dictionary</span>内置混淆词典（${HOMOPHONE_DICT.length} 条）</div>
-      <table class="dict-table">
-        <tr><th>混淆词</th><th>→</th><th>正确词</th></tr>
-        ${HOMOPHONE_DICT.map(r => `<tr><td>${r.dirty}</td><td>→</td><td>${r.clean || '(删除)'}</td></tr>`).join('')}
-      </table>
-      <div style="text-align:right;margin-top:16px">
-        <button class="btn btn-filled" onclick="this.closest('.modal-overlay').remove()">关闭</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+  const tableRows = HOMOPHONE_DICT.map(r => `<tr><td>${r.dirty}</td><td>→</td><td>${r.clean || '(删除)'}</td></tr>`).join('');
+  dialog.open({
+    icon: 'dictionary',
+    title: `内置混淆词典（${HOMOPHONE_DICT.length} 条）`,
+    content: `<table class="dict-table"><tr><th>混淆词</th><th>→</th><th>正确词</th></tr>${tableRows}</table>`,
+    actions: [{ text: '关闭', type: 'filled' }]
+  });
 }
 
 function exportDict() {
@@ -1627,14 +1778,14 @@ function handleConvertFile(file) {
   document.getElementById('convertStats').style.display = 'none';
   document.getElementById('btnConvertDownload').style.display = 'none';
   // Auto-select format chip
-  document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
-  const chip = document.querySelector(`.format-chip[data-fmt="${ext}"]`) || document.querySelector('.format-chip[data-fmt="auto"]');
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  const chip = document.querySelector(`.filter-chip[data-fmt="${ext}"]`) || document.querySelector('.filter-chip[data-fmt="auto"]');
   if (chip) chip.classList.add('active');
 }
 
-document.querySelectorAll('.format-chip').forEach(chip => {
+document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
   });
 });
@@ -1692,7 +1843,7 @@ async function convertEpub(file, stripAds) {
   for (const html of htmlFiles) {
     const doc = parser.parseFromString(html, 'text/html');
     if (stripAds) stripHtmlAds(doc);
-    text += doc.body.textContent + '\n\n';
+    text += (doc.body ? doc.body.textContent : '') + '\n\n';
   }
 
   return text.replace(/\n{3,}/g, '\n\n').trim();
@@ -1755,10 +1906,11 @@ let COMMUNITY_PACKS = [];
 
 async function fetchMarketIndex() {
   try {
-    const resp = await fetch(`${GITHUB_RAW}/index.json`);
+    const resp = await fetch(`${GITHUB_RAW}/marketplace.json?t=${Date.now()}`);
     if (resp.ok) {
-      COMMUNITY_PACKS = await resp.json();
-      COMMUNITY_PACKS.forEach(p => p.installed = false);
+      const data = await resp.json();
+      COMMUNITY_PACKS = (data.rules || []).map(p => ({...p, installed: false}));
+      MARKET_CATEGORIES = data.categories || [];
     }
   } catch(e) {
     console.warn('Failed to fetch market index:', e);
@@ -1767,48 +1919,57 @@ async function fetchMarketIndex() {
 
 async function fetchPackDetail(id) {
   try {
-    const resp = await fetch(`${GITHUB_RAW}/${id}.json`);
+    const pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+    if (!pack || !pack.path) return null;
+    const resp = await fetch(`${GITHUB_RAW}/${pack.path}/manifest.json?t=${Date.now()}`);
     if (resp.ok) return await resp.json();
   } catch(e) {}
   return null;
 }
 
-function renderMarketplace() {
+function renderMarketplace(tab) {
   const content = document.getElementById('marketContent');
-  const packs = [...COMMUNITY_PACKS, ...marketplacePacks];
-  content.innerHTML = packs.map(p => `
-    <div class="market-card">
-      <div class="info">
-        <div class="title">${p.name}</div>
-        <div class="desc">${p.desc}</div>
-        <div class="meta">by ${p.author} · v${p.version} · ${p.stars || 0} stars</div>
+  let packs = [...COMMUNITY_PACKS, ...marketplacePacks];
+  if (tab === 'mine') packs = packs.filter(p => p.installed);
+  else if (tab === 'popular') packs = packs.sort((a, b) => (b.stars || 0) - (a.stars || 0));
+  if (!packs.length) {
+    content.innerHTML = '<p style="font:400 14px/20px;color:var(--on-surface-variant);padding:16px 0">暂无规则包</p>';
+    return;
+  }
+  content.innerHTML = '<div class="list-container">' + packs.map(p => `
+    <div class="list-item" onclick="event.stopPropagation()">
+      <div class="leading"><span class="material-symbols-outlined">extension</span></div>
+      <div class="content">
+        <div class="headline">${p.name}</div>
+        <div class="supporting">${p.desc}</div>
+        <div class="supporting" style="font-size:11px;margin-top:4px">by ${p.author} · v${p.version} · ${p.stars || 0} stars</div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div class="trailing" style="display:flex;gap:4px">
         ${p.installed
-          ? '<button class="btn btn-text" disabled>已安装</button>'
-          : `<button class="btn btn-tonal" onclick="installPack('${p.id}')">安装</button>`
+          ? '<button class="btn btn-text" disabled style="height:32px;font-size:12px">已安装</button>'
+          : `<button class="btn btn-tonal" onclick="installPack('${p.id}')" style="height:32px;font-size:12px">安装</button>`
         }
-        <button class="btn btn-text" onclick="exportPack('${p.id}')">
-          <span class="material-symbols-outlined">download</span>
+        <button class="btn btn-text" onclick="exportPack('${p.id}')" style="height:32px;min-width:32px;padding:0 8px">
+          <span class="material-symbols-outlined" style="font-size:18px">download</span>
         </button>
       </div>
     </div>
-  `).join('');
+  `).join('') + '</div>';
 }
 
 function switchMarketTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  renderMarketplace();
+  renderMarketplace(tab);
 }
 
 async function installPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
     if (detail) pack = {...pack, ...detail};
   }
-  if (!pack) return;
   pack.rules.forEach(r => {
     try {
       const regex = new RegExp(r.pattern, r.flags || 'gi');
@@ -1821,13 +1982,13 @@ async function installPack(id) {
   snackbar.show(`已安装 ${pack.name}（${pack.rules.length} 条规则）`);
 }
 
-function exportPack(id) {
+async function exportPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
     if (detail) pack = {...pack, ...detail};
   }
-  if (!pack) return;
   const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `clearbook-${pack.id}.json`; a.click(); URL.revokeObjectURL(a.href);
@@ -1835,25 +1996,34 @@ function exportPack(id) {
 }
 
 function showCreateRulePack() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title"><span class="material-symbols-outlined">add_box</span>创建规则包</div>
-      <div style="display:grid;gap:12px">
-        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">名称</label><input type="text" id="packName" placeholder="如：我的小说清理规则"></div>
-        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">作者</label><input type="text" id="packAuthor" placeholder="你的名字"></div>
-        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">描述</label><textarea id="packDesc" placeholder="这个规则包做什么" rows="2"></textarea></div>
-        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">规则（每行一个正则）</label><textarea id="packRules" placeholder="关注公众号.*?领取\\n本小说来自.*?首发" rows="4" style="font-family:monospace"></textarea></div>
+  dialog.open({
+    icon: 'add_box',
+    title: '创建规则包',
+    content: `
+      <div style="display:grid;gap:16px">
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">名称</label>
+          <input type="text" id="packName" placeholder="如：我的小说清理规则" style="width:100%">
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">作者</label>
+          <input type="text" id="packAuthor" placeholder="你的名字" style="width:100%">
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">描述</label>
+          <textarea id="packDesc" placeholder="这个规则包做什么" rows="2" style="width:100%"></textarea>
+        </div>
+        <div>
+          <label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:6px">规则（每行一个正则）</label>
+          <textarea id="packRules" placeholder="关注公众号.*?领取\n本小说来自.*?首发" rows="4" style="width:100%;font-family:monospace"></textarea>
+        </div>
       </div>
-      <div class="btn-row" style="margin-top:16px;justify-content:flex-end">
-        <button class="btn btn-text" onclick="this.closest('.modal-overlay').remove()">取消</button>
-        <button class="btn btn-filled" onclick="createRulePack()">创建</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+    `,
+    actions: [
+      { text: '取消', type: 'text' },
+      { text: '创建', type: 'filled', fn: createRulePack }
+    ]
+  });
 }
 
 function createRulePack() {
@@ -1878,20 +2048,42 @@ function createRulePack() {
   marketplacePacks.push(pack);
   localStorage.setItem('cb-market-packs', JSON.stringify(marketplacePacks));
 
-  // Close modal
-  document.querySelector('.modal-overlay').remove();
+  // Close dialog
+  dialog.close();
   renderMarketplace();
   snackbar.show(`规则包 "${name}" 已创建`);
 
-  // Show GitHub submit option
+  // Offer to submit to GitHub or export
   setTimeout(() => {
-    const url = `https://github.com/hrk666666/clearbook-rules/issues/new?title=${encodeURIComponent('Rule Pack: ' + name)}&body=${encodeURIComponent('```json\n' + JSON.stringify(pack, null, 2) + '\n```')}`;
-    showConfirm({
-      icon: 'upload',
-      title: '提交到 GitHub',
-      content: '是否将此规则包提交到 GitHub 规则市场？',
-      confirmText: '提交',
-      onConfirm: () => { window.open(url, '_blank'); }
+    const issueTitle = encodeURIComponent('Rule Pack: ' + pack.name);
+    const issueBody = encodeURIComponent('## 规则包信息\n\n' +
+      '**名称：** ' + pack.name + '\n' +
+      '**作者：** ' + pack.author + '\n' +
+      '**描述：** ' + (pack.desc || '无') + '\n' +
+      '**版本：** ' + pack.version + '\n\n' +
+      '## 规则\n\n```json\n' + JSON.stringify(pack, null, 2) + '\n```\n\n' +
+      '> 由 Clear Book 自动生成');
+    const issueUrl = 'https://github.com/hrk666666/clearbook-rules/issues/new?title=' + issueTitle + '&body=' + issueBody;
+
+    dialog.open({
+      icon: 'cloud_upload',
+      title: '提交规则包',
+      content: '<p style="margin-bottom:12px">规则包已创建并保存到本地。</p><p>你可以：</p><ul style="padding-left:20px;margin-top:8px"><li>提交到 GitHub 规则市场（需 GitHub 账号）</li><li>导出为 JSON 文件手动分享</li></ul>',
+      actions: [
+        { text: '导出 JSON', type: 'text', fn: () => {
+          const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'clearbook-' + pack.id + '.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+          snackbar.show('已导出规则包');
+        }},
+        { text: '提交到 GitHub', type: 'filled', fn: () => {
+          window.open(issueUrl, '_blank');
+          snackbar.show('已打开 GitHub Issues');
+        }}
+      ]
     });
   }, 500);
 }
@@ -1960,35 +2152,57 @@ function initAI() {
 }
 
 function copyAIPrompt() {
-  navigator.clipboard.writeText(AI_PROMPT).then(() => snackbar.show("提示词已复制")).catch(() => {
-    const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); snackbar.show("提示词已复制");
-  });
+  function showSuccess() {
+    snackbar.show('提示词已复制，去发给 AI 吧');
+  }
+  
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(AI_PROMPT).then(showSuccess).catch(() => {
+        const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showSuccess(); } catch(e) { snackbar.show('复制失败'); }
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
+      ta.style.cssText = 'position:fixed;left:-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showSuccess(); } catch(e) { snackbar.show('复制失败'); }
+      document.body.removeChild(ta);
+    }
+  } catch(e) { snackbar.show('复制失败'); }
 }
 
 function importAIRules() {
   const input = document.getElementById('aiResponse').value.trim();
-  if (!input) return snackbar.show("请粘贴 AI 返回的 JSON");
+  if (!input) return snackbar.show('请粘贴 AI 返回的 JSON');
 
   try {
     // Try to extract JSON from the response
     let jsonStr = input;
     const codeBlock = input.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (codeBlock) jsonStr = codeBlock[1].trim();
+    // Also try to find JSON object directly
+    if (!jsonStr.startsWith('{')) {
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) jsonStr = jsonMatch[0];
+    }
 
     const data = JSON.parse(jsonStr);
     let ruleCount = 0;
     let homoCount = 0;
+    const errors = [];
 
     // Import rules
     if (data.rules && Array.isArray(data.rules)) {
       data.rules.forEach(r => {
         try {
           const regex = new RegExp(r.regex, r.flags || 'gi');
-          customRules.push({pattern: r.regex, regex, name: r.name});
+          customRules.push({pattern: r.regex, regex, name: r.name || r.description || r.regex.substring(0, 30)});
           ruleCount++;
-        } catch(e) {}
+        } catch(e) { errors.push(r.regex + ': ' + e.message); }
       });
     }
 
@@ -2005,21 +2219,36 @@ function importAIRules() {
     }
 
     renderCustomRules();
+    renderUserDict();
     document.getElementById('aiResponse').value = '';
-    snackbar.show(`已导入 ${ruleCount} 条规则 + ${homoCount} 条混淆词`);
+    
+    // Show detailed feedback
+    let msg = '';
+    if (ruleCount > 0) msg += '已导入 ' + ruleCount + ' 条规则';
+    if (ruleCount > 0 && homoCount > 0) msg += ' + ';
+    if (homoCount > 0) msg += homoCount + ' 条混淆词';
+    if (errors.length > 0) msg += ' (' + errors.length + ' 条失败)';
+    if (ruleCount === 0 && homoCount === 0) msg = '未找到有效规则';
+    snackbar.show(msg);
+    
+    // Auto-clean after import if file is loaded
+    if (originalText && ruleCount > 0) {
+      setTimeout(function() { cleanText(); }, 500);
+    }
+    
+    // Visual feedback - highlight the custom rules section
+    const customSection = document.getElementById('customRulesList');
+    if (customSection) {
+      customSection.style.background = 'var(--primary-container)';
+      setTimeout(() => { customSection.style.background = ''; }, 2000);
+    }
   } catch(e) {
-    snackbar.show("JSON 解析失败，请检查格式");
+    snackbar.show('JSON 解析失败：' + e.message);
   }
 }
 
 // ==================== TOAST ====================
 function toast(msg) { snackbar.show(msg); }
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-}
 
 // ==================== INIT ====================
 
@@ -2031,10 +2260,11 @@ async function checkForUpdates() {
     if (resp.ok) {
       const data = await resp.json();
       if (data.version !== APP_VERSION) {
-        showConfirm({`发现新版本 v${data.version}（当前 v${APP_VERSION}）\n\n${data.changelog || ''}\n\n是否更新？`);
-        
-          window.location.href = data.url || `https://hrk666666.github.io/clearbook-rules/`;
-        }
+        showConfirm({
+          title: '发现新版本',
+          content: `v${data.version}（当前 v${APP_VERSION}）`,
+          onConfirm: () => { window.location.href = data.url || 'https://hrk666666.github.io/clearbook/'; }
+        });
       }
     }
   } catch(e) {}
@@ -2048,10 +2278,65 @@ renderRules();
 renderUserDict();
 renderCustomRules();
 initAI();
-</script>
-initRipples();
+
 
 // ==================== INIT MD3 ====================
-initRipples();
+
+// ==================== CONVERT TO CLEAN ====================
+function importConvertedToClean() {
+  if (!convertedText) return snackbar.show('没有可导入的内容');
+  originalText = convertedText;
+  fileName = convertedFileName || 'converted.txt';
+  document.getElementById('fileInfo').classList.add('show');
+  document.getElementById('fileName').textContent = fileName;
+  document.getElementById('fileSize').textContent = formatSize(convertedText.length);
+  document.getElementById('btnClean').disabled = false;
+  hideResult();
+  navigate('clean');
+  snackbar.show('已导入 ' + fileName + '，可以开始清洗');
+}
+
+
+function filterCategory(categoryId, el) {
+  document.querySelectorAll('.chip-group .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#marketContent .list-item').forEach(item => {
+    if (!categoryId || item.dataset.category === categoryId) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+
+function sharePack(id) {
+  const pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
+  if (!pack) return snackbar.show('规则包未找到');
+  const json = JSON.stringify(pack, null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    snackbar.show('规则包 JSON 已复制到剪贴板，可分享给他人');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = json;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    snackbar.show('规则包 JSON 已复制到剪贴板');
+  });
+}
+
+function filterMarket(query) {
+  const items = document.querySelectorAll('#marketContent .list-item');
+  const q = query.toLowerCase();
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
 </script>
+</body>
 </html>
