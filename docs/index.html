@@ -1423,7 +1423,7 @@ async function cleanText() {
         let hCount = 0;
         homophoneDict.forEach(({dirty, clean}) => {
           try {
-            const re = new RegExp(dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            const escaped = dirty.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); const re = new RegExp(escaped, 'g');
             const m = result.match(re);
             if (m) { hCount += m.length; result = result.replace(re, clean); }
           } catch(e) {}
