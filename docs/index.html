@@ -1736,11 +1736,38 @@ function downloadResult() {
 }
 
 function copyResult() {
-  navigator.clipboard.writeText(cleanedText).then(() => snackbar.show("已复制到剪贴板")).catch(() => {
-    const ta = document.createElement('textarea'); ta.value = cleanedText;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); snackbar.show("已复制到剪贴板");
-  });
+  const btn = document.getElementById('btnCopy');
+  const origText = btn.innerHTML;
+  
+  function showSuccess() {
+    btn.innerHTML = '<span class="material-symbols-outlined">check</span>已复制';
+    btn.className = 'btn btn-tonal';
+    snackbar.show('已复制到剪贴板 (' + formatSize(cleanedText.length) + ')');
+    setTimeout(() => { btn.innerHTML = origText; btn.className = 'btn btn-outlined'; }, 2000);
+  }
+  
+  function showFail() {
+    snackbar.show('复制失败，请手动选择文本复制');
+  }
+  
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cleanedText).then(showSuccess).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea'); ta.value = cleanedText;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showSuccess(); } catch(e) { showFail(); }
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement('textarea'); ta.value = cleanedText;
+      ta.style.cssText = 'position:fixed;left:-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showSuccess(); } catch(e) { showFail(); }
+      document.body.removeChild(ta);
+    }
+  } catch(e) { showFail(); }
 }
 
 function resetAll() {
@@ -2264,11 +2291,27 @@ function initAI() {
 }
 
 function copyAIPrompt() {
-  navigator.clipboard.writeText(AI_PROMPT).then(() => snackbar.show("提示词已复制")).catch(() => {
-    const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); snackbar.show("提示词已复制");
-  });
+  function showSuccess() {
+    snackbar.show('提示词已复制，去发给 AI 吧');
+  }
+  
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(AI_PROMPT).then(showSuccess).catch(() => {
+        const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showSuccess(); } catch(e) { snackbar.show('复制失败'); }
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement('textarea'); ta.value = AI_PROMPT;
+      ta.style.cssText = 'position:fixed;left:-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showSuccess(); } catch(e) { snackbar.show('复制失败'); }
+      document.body.removeChild(ta);
+    }
+  } catch(e) { snackbar.show('复制失败'); }
 }
 
 function importAIRules() {
@@ -2309,10 +2352,25 @@ function importAIRules() {
     }
 
     renderCustomRules();
+    renderUserDict();
     document.getElementById('aiResponse').value = '';
-    snackbar.show(`已导入 ${ruleCount} 条规则 + ${homoCount} 条混淆词`);
+    
+    // Show detailed feedback
+    let msg = '导入成功：';
+    if (ruleCount > 0) msg += ruleCount + ' 条规则';
+    if (ruleCount > 0 && homoCount > 0) msg += ' + ';
+    if (homoCount > 0) msg += homoCount + ' 条混淆词';
+    if (ruleCount === 0 && homoCount === 0) msg += '无有效数据';
+    snackbar.show(msg);
+    
+    // Visual feedback - highlight the custom rules section
+    const customSection = document.getElementById('customRulesList');
+    if (customSection) {
+      customSection.style.background = 'var(--primary-container)';
+      setTimeout(() => { customSection.style.background = ''; }, 2000);
+    }
   } catch(e) {
-    snackbar.show("JSON 解析失败，请检查格式");
+    snackbar.show('JSON 解析失败：' + e.message);
   }
 }
 
