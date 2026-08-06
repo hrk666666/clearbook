@@ -1355,198 +1355,179 @@ async function cleanText() {
   progressText.textContent = '准备清洗...';
   document.getElementById('btnClean').disabled = true;
   
-  let result = originalText;
-  const stats = {};
-  const totalSteps = 10;
-  let step = 0;
-  
-  function updateProgress(text, pct) {
-    progressText.textContent = text;
-    progressBar.style.width = pct + '%';
-  }
-  
-  function delay() {
-    return new Promise(resolve => setTimeout(resolve, 0));
-  }
-  
-  try {
-    // Step 1: Whitespace rules
-    updateProgress('处理空白字符...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['allBlank']) {
-      const before = result.split('\n').length;
-      result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
-      stats['完全去空行'] = before - result.split('\n').length;
-    } else if (rules['multiBlank']) {
-      const matches = result.match(/\n{3,}/g) || [];
-      result = result.replace(/\n{3,}/g, '\n\n');
-      stats['压缩多余空行'] = matches.length;
-    }
-    
-    if (rules['trimLine']) {
-      const matches = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
-      result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
-      stats['行首尾空白'] = matches.length;
-    }
-    
-    // Step 2: Regex rules
-    updateProgress('应用清洗规则...', (++step / totalSteps * 100));
-    await delay();
-    
-    RULE_GROUPS.forEach(g => {
-      g.rules.forEach(r => {
-        if (r.custom) return;
-        if (!rules[r.id]) return;
-        const matches = result.match(r.regex) || [];
-        if (matches.length) {
-          result = result.replace(r.regex, '');
-          stats[r.label] = matches.length;
-        }
-      });
+  // Collect active rules
+  const activeRules = [];
+  RULE_GROUPS.forEach(g => {
+    g.rules.forEach(r => {
+      if (r.custom) return;
+      if (rules[r.id]) activeRules.push({id: r.id, label: r.label, regex: r.regex ? r.regex.source : null, flags: r.regex ? r.regex.flags : null});
     });
-    
-    // Step 3: Custom rules
-    updateProgress('应用自定义规则...', (++step / totalSteps * 100));
-    await delay();
-    
-    customRules.forEach(r => {
-      const matches = result.match(r.regex) || [];
-      if (matches.length) {
-        result = result.replace(r.regex, '');
-        stats['自定义: ' + r.pattern] = matches.length;
+  });
+  const activeCustomRules = customRules.map(r => ({pattern: r.pattern, flags: 'gi'}));
+  const activeDict = rules['homophone'] ? [...HOMOPHONE_DICT, ...userHomophoneDict] : [];
+  
+  // Use Web Worker for heavy processing
+  const workerCode = `
+    self.onmessage = function(e) {
+      const {text, rules: activeRules, customRules, homophoneDict, ruleFlags} = e.data;
+      let result = text;
+      const stats = {};
+      let step = 0;
+      const totalSteps = 8;
+      
+      function report(msg, pct) {
+        self.postMessage({type: 'progress', msg, pct});
       }
-    });
-    
-    // Step 4: Homophone dict
-    updateProgress('检测同音字混淆...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['homophone']) {
-      const allDict = [...HOMOPHONE_DICT, ...userHomophoneDict];
-      let hCount = 0;
-      allDict.forEach(({dirty, clean}) => {
-        const re = new RegExp(dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        const matches = result.match(re);
-        if (matches) {
-          hCount += matches.length;
-          result = result.replace(re, clean);
-        }
+      
+      // Step 1: Whitespace
+      report('处理空白字符...', (++step/totalSteps*100));
+      if (ruleFlags.allBlank) {
+        const before = result.split('\n').length;
+        result = result.replace(/^\s*$/gm, '').replace(/\n{2,}/g, '\n');
+        stats['完全去空行'] = before - result.split('\n').length;
+      } else if (ruleFlags.multiBlank) {
+        const m = result.match(/\n{3,}/g) || [];
+        result = result.replace(/\n{3,}/g, '\n\n');
+        stats['压缩多余空行'] = m.length;
+      }
+      if (ruleFlags.trimLine) {
+        const m = result.match(/^[ \t\u3000]+|[ \t\u3000]+$/gm) || [];
+        result = result.replace(/^[ \t\u3000]+|[ \t\u3000]+$/gm, '');
+        stats['行首尾空白'] = m.length;
+      }
+      
+      // Step 2: Regex rules
+      report('应用清洗规则...', (++step/totalSteps*100));
+      activeRules.forEach(r => {
+        if (!r.regex) return;
+        try {
+          const re = new RegExp(r.regex, r.flags);
+          const m = result.match(re);
+          if (m && m.length) { result = result.replace(re, ''); stats[r.label] = m.length; }
+        } catch(e) {}
       });
-      if (hCount) stats['同音字混淆'] = hCount;
-    }
-    
-    // Step 5: Pinyin detection
-    updateProgress('拼音相似度检测...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['pinyinDetect']) {
-      const changes = detectByPinyin(result);
-      if (changes.length) {
-        let applied = 0;
-        changes.sort((a,b) => b.start - a.start).forEach(c => {
-          if (c.confidence >= 0.85) {
-            const line = result.split('\n');
-            for (let i = 0; i < line.length; i++) {
-              if (line[i].includes(c.original)) {
-                line[i] = line[i].replace(c.original, c.replacement);
-                applied++;
-              }
-            }
-            result = line.join('\n');
-          }
+      
+      // Step 3: Custom rules
+      report('自定义规则...', (++step/totalSteps*100));
+      customRules.forEach(r => {
+        try {
+          const re = new RegExp(r.pattern, r.flags);
+          const m = result.match(re);
+          if (m && m.length) { result = result.replace(re, ''); stats['自定义: ' + r.pattern] = m.length; }
+        } catch(e) {}
+      });
+      
+      // Step 4: Homophone
+      report('同音字检测...', (++step/totalSteps*100));
+      if (homophoneDict.length) {
+        let hCount = 0;
+        homophoneDict.forEach(({dirty, clean}) => {
+          try {
+            const re = new RegExp(dirty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            const m = result.match(re);
+            if (m) { hCount += m.length; result = result.replace(re, clean); }
+          } catch(e) {}
         });
-        if (applied) stats['拼音检测'] = applied;
+        if (hCount) stats['同音字混淆'] = hCount;
       }
-    }
-    
-    // Step 6: Pattern detection
-    updateProgress('模式识别检测...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['patternDetect']) {
-      const {result: patResult, count: patCount} = detectPatterns(result);
-      result = patResult;
-      if (patCount) stats['模式识别'] = patCount;
-    }
-    
-    // Step 7: Deduplicate paragraphs
-    updateProgress('去重处理...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['dupPara']) {
-      const lines = result.split('\n');
-      const deduped = [];
-      let count = 0;
-      for (let i = 0; i < lines.length; i++) {
-        if (i > 0 && lines[i].trim() && lines[i].trim() === lines[i-1]?.trim()) { count++; continue; }
-        deduped.push(lines[i]);
+      
+      // Step 5: Dedup
+      report('去重处理...', (++step/totalSteps*100));
+      if (ruleFlags.dupPara) {
+        const lines = result.split('\n');
+        const deduped = [];
+        let count = 0;
+        for (let i = 0; i < lines.length; i++) {
+          if (i > 0 && lines[i].trim() && lines[i].trim() === lines[i-1]?.trim()) { count++; continue; }
+          deduped.push(lines[i]);
+        }
+        result = deduped.join('\n');
+        if (count) stats['重复段落去重'] = count;
       }
-      result = deduped.join('\n');
-      if (count) stats['重复段落去重'] = count;
-    }
-    
-    // Step 8: Normalize chapters
-    updateProgress('规范化章节标题...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['normalizeChapter']) {
-      const count = (result.match(/第\d+章/g) || []).length;
-      result = result.replace(/第(\d+)章/g, (_, n) => '第' + numToChinese(parseInt(n)) + '章');
-      if (count) stats['章节标题规范化'] = count;
-    }
-    
-    // Step 9: Merge paragraphs
-    updateProgress('合并短段落...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['mergeParas']) {
-      const lines = result.split('\n');
-      const merged = [];
-      let count = 0;
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        const next = lines[i+1]?.trim();
-        if (line && next && line.length < 20 && next.length < 80 && !line.match(/^[第章]/) && !next.match(/^[第章]/)) {
-          merged.push(line + next); i++; count++;
-        } else { merged.push(lines[i]); }
+      
+      // Step 6: Normalize chapters
+      report('规范化章节...', (++step/totalSteps*100));
+      if (ruleFlags.normalizeChapter) {
+        const m = result.match(/第\d+章/g) || [];
+        result = result.replace(/第(\d+)章/g, (_, n) => {
+          const d = ['零','一','二','三','四','五','六','七','八','九'];
+          const num = parseInt(n);
+          if (num <= 10) return num === 10 ? '第十' : '第' + d[num];
+          if (num < 20) return '第十' + d[num-10];
+          if (num < 100) { const t=Math.floor(num/10),o=num%10; return '第'+d[t]+'十'+(o?d[o]:''); }
+          return '第' + n;
+        });
+        if (m.length) stats['章节标题规范化'] = m.length;
       }
-      result = merged.join('\n');
-      if (count) stats['短段落合并'] = count;
-    }
-    
-    // Step 10: Deduplicate chapters
-    updateProgress('去重章节...', (++step / totalSteps * 100));
-    await delay();
-    
-    if (rules['dedupChapter']) {
-      const chapters = result.split(/(?=第[一二三四五六七八九十百千\d]+章)/);
-      const seen = new Map();
-      let count = 0;
-      const deduped = [];
-      for (const ch of chapters) {
-        const key = ch.substring(0, 100).trim();
-        if (key && seen.has(key)) { count++; continue; }
-        if (key) seen.set(key, true);
-        deduped.push(ch);
+      
+      // Step 7: Merge paragraphs
+      report('合并段落...', (++step/totalSteps*100));
+      if (ruleFlags.mergeParas) {
+        const lines = result.split('\n');
+        const merged = [];
+        let count = 0;
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          const next = lines[i+1]?.trim();
+          if (line && next && line.length < 20 && next.length < 80 && !line.match(/^[第章]/) && !next.match(/^[第章]/)) {
+            merged.push(line + next); i++; count++;
+          } else { merged.push(lines[i]); }
+        }
+        result = merged.join('\n');
+        if (count) stats['短段落合并'] = count;
       }
-      result = deduped.join('');
-      if (count) stats['重复章节去重'] = count;
+      
+      // Step 8: Final cleanup
+      report('完成...', 100);
+      result = result.replace(/\n{3,}/g, '\n\n').trim();
+      
+      self.postMessage({type: 'done', result, stats});
+    };
+  `;
+  
+  const blob = new Blob([workerCode], {type: 'application/javascript'});
+  const workerUrl = URL.createObjectURL(blob);
+  const worker = new Worker(workerUrl);
+  
+  worker.onmessage = function(e) {
+    if (e.data.type === 'progress') {
+      progressText.textContent = e.data.msg;
+      progressBar.style.width = e.data.pct + '%';
+    } else if (e.data.type === 'done') {
+      cleanedText = e.data.result;
+      progressEl.style.display = 'none';
+      document.getElementById('btnClean').disabled = false;
+      showResult(e.data.stats);
+      snackbar.show('清洗完成');
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
     }
-    
-    // Final cleanup
-    updateProgress('完成清洗...', 100);
-    await delay();
-    
-    result = result.replace(/\n{3,}/g, '\n\n').trim();
-    cleanedText = result;
-    
-    // Hide progress, show results
+  };
+  
+  worker.onerror = function(err) {
     progressEl.style.display = 'none';
     document.getElementById('btnClean').disabled = false;
-    showResult(stats);
-    snackbar.show('清洗完成');
-    
+    snackbar.show('清洗失败: ' + err.message);
+    worker.terminate();
+    URL.revokeObjectURL(workerUrl);
+  };
+  
+  // Collect rule flags
+  const ruleFlags = {};
+  ['allBlank','multiBlank','trimLine','dupPara','normalizeChapter','mergeParas','dedupChapter','linkPara','separator',
+   'homophone','pinyinDetect','patternDetect'].forEach(id => { ruleFlags[id] = !!rules[id]; });
+  
+  // Start worker
+  worker.postMessage({
+    text: originalText,
+    rules: activeRules,
+    customRules: activeCustomRules,
+    homophoneDict: activeDict,
+    ruleFlags: ruleFlags
+  });
+  return;
+  
+  try {
   } catch(err) {
     progressEl.style.display = 'none';
     document.getElementById('btnClean').disabled = false;
