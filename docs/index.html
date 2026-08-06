@@ -1606,7 +1606,7 @@ async function cleanText() {
       
       self.postMessage({type: 'done', result, stats});
     };
-  `;
+  };
   
   const blob = new Blob(['(' + workerFn.toString() + ')()'], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(blob);
@@ -1648,14 +1648,6 @@ async function cleanText() {
     homophoneDict: activeDict,
     ruleFlags: ruleFlags
   });
-  return;
-  
-  try {
-  } catch(err) {
-    progressEl.style.display = 'none';
-    document.getElementById('btnClean').disabled = false;
-    snackbar.show('清洗失败: ' + err.message);
-  }
 }
 
 function numToChinese(n) {
