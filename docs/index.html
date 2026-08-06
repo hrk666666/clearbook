@@ -1342,6 +1342,19 @@ function formatSize(bytes) {
   return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
+function getByteLength(str) {
+  // Calculate actual UTF-8 byte length
+  var bytes = 0;
+  for (var i = 0; i < str.length; i++) {
+    var code = str.charCodeAt(i);
+    if (code <= 0x7F) bytes += 1;
+    else if (code <= 0x7FF) bytes += 2;
+    else if (code >= 0xD800 && code <= 0xDBFF) { bytes += 4; i++; } // surrogate pair
+    else bytes += 3;
+  }
+  return bytes;
+}
+
 // ==================== CLEANING ENGINE ====================
 async function cleanText() {
   if (!originalText) return;
@@ -1515,17 +1528,19 @@ function numToChinese(n) {
 function showResult(stats) {
   const statsEl = document.getElementById('stats');
   const entries = Object.entries(stats).filter(([,v]) => v > 0);
-  const totalSaved = originalText.length - cleanedText.length;
-  const pct = originalText.length > 0 ? ((totalSaved / originalText.length) * 100).toFixed(1) : 0;
+  const origBytes = getByteLength(originalText);
+  const cleanBytes = getByteLength(cleanedText);
+  const totalSaved = origBytes - cleanBytes;
+  const pct = origBytes > 0 ? ((totalSaved / origBytes) * 100).toFixed(1) : 0;
 
   statsEl.style.display = 'block';
   statsEl.innerHTML = `
     <div class="stats-bar">
       <div class="stats-summary">
         <span class="material-symbols-outlined">analytics</span>
-        <span>原文 <strong>${formatSize(originalText.length)}</strong></span>
+        <span>原文 <strong>${formatSize(origBytes)}</strong></span>
         <span class="stats-arrow">→</span>
-        <span>清洗后 <strong>${formatSize(cleanedText.length)}</strong></span>
+        <span>清洗后 <strong>${formatSize(cleanBytes)}</strong></span>
         <span class="stats-arrow">→</span>
         <span>减少 <strong style="color:var(--primary)">${formatSize(totalSaved)} (${pct}%)</strong></span>
         <span class="stats-sep">|</span>
@@ -1550,8 +1565,8 @@ function showResult(stats) {
   const cleanSample = cleanLines.slice(diffIdx, diffIdx + 50).join('\n');
   document.getElementById('origPreview').textContent = origSample || originalText.substring(0, 2000);
   document.getElementById('cleanPreview').textContent = cleanSample || cleanedText.substring(0, 2000);
-  document.getElementById('origStats').textContent = `${origLines.length} 行 · ${formatSize(originalText.length)}`;
-  document.getElementById('cleanStats').textContent = `${cleanLines.length} 行 · ${formatSize(cleanedText.length)}`;
+  document.getElementById('origStats').textContent = origLines.length + ' 行 · ' + formatSize(getByteLength(originalText));
+  document.getElementById('cleanStats').textContent = cleanLines.length + ' 行 · ' + formatSize(getByteLength(cleanedText));
 
   document.getElementById('btnDownload').style.display = '';
   document.getElementById('btnDownload').className = 'btn btn-filled';
