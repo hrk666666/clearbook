@@ -8,9 +8,7 @@
 <style>
 @font-face{font-family:'Material Symbols Outlined';font-style:normal;font-weight:400;src:url("fonts/material-symbols.woff2") format('woff2')}
 .material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
-@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC"),local("NotoSansSC-Regular"),local("Source Han Sans SC Regular"),local("Source Han Sans CN Regular"),local("PingFang SC"),local("Microsoft YaHei");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Medium"),local("NotoSansSC-Medium"),local("Source Han Sans SC Medium"),local("Source Han Sans CN Medium");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Noto Sans SC";src:local("Noto Sans SC Bold"),local("NotoSansSC-Bold"),local("Source Han Sans SC Bold"),local("Source Han Sans CN Bold");font-weight:700;font-style:normal;font-display:swap}
+
 
 :root {
   --primary:#6750A4;--on-primary:#fff;--primary-container:#EADDFF;--on-primary-container:#21005D;
@@ -28,7 +26,7 @@
   --fast:200ms;--med:300ms;--ease:cubic-bezier(.2,0,0,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font:500 16px/24px system-ui, -apple-system, system-ui, sans-serif, 'PingFang SC', sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 /* Nav Rail */
 .app-shell{display:flex;min-height:100vh}
 .nav-rail{width:80px;background:var(--sc-low);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;position:fixed;top:0;left:0;bottom:0;z-index:50}
@@ -37,7 +35,7 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .nav-item .icon-wrap{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:all var(--med) var(--ease)}
 .nav-item.active .icon-wrap{background:var(--secondary-container)}
 .nav-item.active{color:var(--on-surface)}
-.nav-item .label{font:500 12px/16px 'Noto Sans SC';}
+.nav-item .label{font:500 12px/16px system-ui, sans-serif;}
 .nav-item:hover .icon-wrap{background:var(--sc-high)}
 .main-content{margin-left:80px;flex:1;padding:24px 32px;max-width:1000px;width:100%}
 @media(max-width:768px){
@@ -54,10 +52,10 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 /* Cards */
 .card{background:var(--sc-low);border-radius:var(--r-lg);padding:24px;margin-bottom:16px;transition:box-shadow var(--fast) var(--ease)}
 .card:hover{box-shadow:var(--e1)}
-.card-title{font:500 16px/24px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.card-title{font:500 16px/24px system-ui, sans-serif;color:var(--on-surface);display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .card-title .material-symbols-outlined{font-size:20px;color:var(--primary)}
 /* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;border-radius:20px;font:500 14px/20px system-ui, sans-serif;cursor:pointer;transition:all var(--fast) var(--ease);outline:none;-webkit-tap-highlight-color:transparent}
 .btn:active{transform:scale(.96)}
 .btn-filled{background:var(--primary);color:var(--on-primary)}
 .btn-filled:hover{box-shadow:var(--e1)}
@@ -74,22 +72,22 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .upload-zone{border:2px dashed var(--outline-variant);border-radius:var(--r-md);padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--med) var(--ease)}
 .upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-container)}
 .upload-zone .material-symbols-outlined{font-size:48px;color:var(--primary);margin-bottom:8px;display:block}
-.upload-zone p{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
+.upload-zone p{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);margin-top:4px}
 .upload-zone input{display:none}
-.file-info{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--sc);border-radius:var(--r-sm);margin-top:12px;font:500 14px/20px 'Noto Sans SC'}
+.file-info{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--sc);border-radius:var(--r-sm);margin-top:12px;font:500 14px/20px system-ui, sans-serif}
 .file-info.show{display:flex}
 .file-info .material-symbols-outlined{font-size:20px;color:var(--primary)}
 .file-info .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-info .size{color:var(--on-surface-variant);font:400 12px/16px 'Noto Sans SC'}
+.file-info .size{color:var(--on-surface-variant);font:400 12px/16px system-ui, sans-serif}
 /* Rules */
 .rules-grid{display:grid;gap:4px}
 .rule-group{margin-bottom:12px}
-.rule-group-header{font:500 14px/20px 'Noto Sans SC';color:var(--primary);padding:8px 0 4px;display:flex;align-items:center;gap:8px}
+.rule-group-header{font:500 14px/20px system-ui, sans-serif;color:var(--primary);padding:8px 0 4px;display:flex;align-items:center;gap:8px}
 .rule-group-header .material-symbols-outlined{font-size:18px}
 .rule-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:var(--r-sm);transition:background var(--fast) var(--ease)}
 .rule-item:hover{background:var(--sc)}
-.rule-label{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface);display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.rule-label .hint{font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant)}
+.rule-label{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface);display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.rule-label .hint{font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant)}
 /* MD3 Switch */
 .md-switch{position:relative;width:52px;height:32px;flex-shrink:0}
 .md-switch input{opacity:0;width:0;height:0}
@@ -99,35 +97,35 @@ body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var
 .md-switch input:checked+.track .thumb{left:28px;width:24px;height:24px;background:var(--on-primary)}
 /* Stats bar */
 .stats-bar{background:var(--primary-container);border-radius:var(--r-md);padding:16px 20px;margin-bottom:16px}
-.stats-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:500 14px/20px 'Noto Sans SC';color:var(--on-primary-container)}
+.stats-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:500 14px/20px system-ui, sans-serif;color:var(--on-primary-container)}
 .stats-summary strong{font-weight:700}
 .stats-arrow{color:var(--on-surface-variant);font-size:12px}
 .stats-sep{color:var(--outline-variant);margin:0 4px}
 .stats-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.stats-chip{display:inline-flex;align-items:center;padding:4px 10px;background:var(--surface);border-radius:16px;font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);white-space:nowrap}
+.stats-chip{display:inline-flex;align-items:center;padding:4px 10px;background:var(--surface);border-radius:16px;font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);white-space:nowrap}
 /* Preview */
 .preview-container{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 @media(max-width:600px){.preview-container{grid-template-columns:1fr}}
 .preview-box{border:1px solid var(--outline-variant);border-radius:var(--r-sm);overflow:hidden}
-.preview-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--sc);font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant)}
-.preview-content{padding:16px;max-height:400px;overflow-y:auto;font:400 13px/1.8 'Noto Sans SC',monospace;color:var(--on-surface);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word}
+.preview-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--sc);font:500 14px/20px system-ui, sans-serif;color:var(--on-surface-variant)}
+.preview-content{padding:16px;max-height:400px;overflow-y:auto;font:400 13px/1.8 system-ui, sans-serif,monospace;color:var(--on-surface);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word}
 /* Textarea */
-textarea,input[type="text"],input[type="url"]{width:100%;padding:12px 16px;border:1px solid var(--outline);border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';background:var(--surface);color:var(--on-surface);outline:none;transition:border-color var(--fast) var(--ease);resize:vertical}
+textarea,input[type="text"],input[type="url"]{width:100%;padding:12px 16px;border:1px solid var(--outline);border-radius:var(--r-sm);font:400 14px/20px system-ui, sans-serif;background:var(--surface);color:var(--on-surface);outline:none;transition:border-color var(--fast) var(--ease);resize:vertical}
 textarea:focus,input:focus{border-color:var(--primary);border-width:2px;padding:11px 15px}
 textarea::placeholder,input::placeholder{color:var(--on-surface-variant)}
 textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Tabs */
 .tabs{display:flex;border-bottom:1px solid var(--outline-variant);margin-bottom:16px;gap:0}
-.tab{padding:12px 24px;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all var(--fast) var(--ease)}
+.tab{padding:12px 24px;font:500 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all var(--fast) var(--ease)}
 .tab:hover{background:var(--sc)}
 .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 /* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:12px 24px;border-radius:var(--r-sm);font:500 14px/20px system-ui, sans-serif;box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease)}
 .toast.show{transform:translateX(-50%) translateY(0;opacity:1}
 /* Modal overlay */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp var(--med) var(--ease)}
 .modal{background:var(--surface);border-radius:var(--r-xl);max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:24px}
-.modal-title{font:700 22px/28px 'Noto Sans SC';margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-title{font:700 22px/28px system-ui, sans-serif;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .modal-title .material-symbols-outlined{color:var(--primary)}
 /* Toggle row */
 .toggle-row{display:flex;gap:8px;margin-bottom:12px}
@@ -137,28 +135,27 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* Scrollbar */
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--outline-variant);border-radius:3px}
 /* Version badge */
-.version{font:400 10px/14px 'Noto Sans SC';color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
+.version{font:400 10px/14px system-ui, sans-serif;color:var(--on-surface-variant);text-align:center;margin-top:auto;padding:4px 0}
 /* Format chips */
 .format-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px 'Noto Sans SC';cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:all var(--fast) var(--ease)}
+.format-chip{padding:8px 16px;border-radius:20px;font:500 14px/20px system-ui, sans-serif;cursor:pointer;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:all var(--fast) var(--ease)}
 .format-chip.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
 .format-chip:hover{background:var(--sc)}
 /* Dict table */
 .dict-table{width:100%;border-collapse:collapse;margin-top:8px}
-.dict-table th,.dict-table td{padding:8px 12px;text-align:left;font:400 13px/18px 'Noto Sans SC';border-bottom:1px solid var(--outline-variant)}
+.dict-table th,.dict-table td{padding:8px 12px;text-align:left;font:400 13px/18px system-ui, sans-serif;border-bottom:1px solid var(--outline-variant)}
 .dict-table th{font-weight:500;color:var(--on-surface-variant)}
 .dict-table td:first-child{color:var(--error);font-family:monospace}
 .dict-table td:last-child{color:var(--primary)}
 /* Marketplace */
 .market-card{background:var(--sc);border-radius:var(--r-md);padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .market-card .info{flex:1;min-width:0}
-.market-card .title{font:500 14px/20px 'Noto Sans SC';color:var(--on-surface)}
-.market-card .desc{font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
-.market-card .meta{font:400 11px/14px 'Noto Sans SC';color:var(--outline);margin-top:4px}
+.market-card .title{font:500 14px/20px system-ui, sans-serif;color:var(--on-surface)}
+.market-card .desc{font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);margin-top:4px}
+.market-card .meta{font:400 11px/14px system-ui, sans-serif;color:var(--outline);margin-top:4px}
 /* Homophone tag */
-.homo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--tertiary-container);border-radius:12px;font:400 12px/16px 'Noto Sans SC';margin:2px}
+.homo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--tertiary-container);border-radius:12px;font:400 12px/16px system-ui, sans-serif;margin:2px}
 .homo-tag .arrow{color:var(--outline);font-size:10px}
-
 
 /* ========== MD3 Ripple ========== */
 .ripple-host{position:relative;overflow:hidden}
@@ -172,10 +169,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .state-layer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;transition:opacity var(--fast) var(--ease)}
 
 /* ========== MD3 Snackbar ========== */
-.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px 'Noto Sans SC';box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
+.snackbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--inverse-surface);color:var(--inverse-on);padding:14px 16px 14px 16px;border-radius:var(--r-sm);font:400 14px/20px system-ui, sans-serif;box-shadow:var(--e2);z-index:200;opacity:0;transition:all var(--med) var(--ease);display:flex;align-items:center;gap:12px;max-width:560px;min-width:280px}
 .snackbar.show{transform:translateX(-50%) translateY(0);opacity:1}
 .snackbar .snack-text{flex:1}
-.snackbar .snack-action{background:none;border:none;color:var(--inverse-primary);font:500 14px/20px 'Noto Sans SC';cursor:pointer;padding:0 8px;height:36px;border-radius:18px}
+.snackbar .snack-action{background:none;border:none;color:var(--inverse-primary);font:500 14px/20px system-ui, sans-serif;cursor:pointer;padding:0 8px;height:36px;border-radius:18px}
 .snackbar .snack-action:hover{background:rgba(208,188,255,.12)}
 
 /* ========== MD3 Dialog ========== */
@@ -185,8 +182,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .dialog-scrim.open .dialog{transform:scale(1)}
 .dialog-icon{text-align:center;margin-bottom:16px}
 .dialog-icon .material-symbols-outlined{font-size:24px;color:var(--primary)}
-.dialog-title{font:700 24px/32px 'Noto Sans SC';color:var(--on-surface);margin-bottom:16px}
-.dialog-content{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-bottom:24px}
+.dialog-title{font:700 24px/32px system-ui, sans-serif;color:var(--on-surface);margin-bottom:16px}
+.dialog-content{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant);margin-bottom:24px}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px}
 
 /* ========== MD3 Bottom Sheet ========== */
@@ -216,22 +213,22 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .divider-middle{margin:8px 16px}
 
 /* ========== MD3 Badge ========== */
-.badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--error);color:var(--error-container);font:500 11px/16px 'Noto Sans SC';text-align:center;display:none}
+.badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--error);color:var(--error-container);font:500 11px/16px system-ui, sans-serif;text-align:center;display:none}
 .badge.show{display:block}
 
 /* ========== MD3 Tooltip ========== */
-.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--inverse-surface);color:var(--inverse-on);padding:4px 8px;border-radius:var(--r-sm);font:400 12px/16px 'Noto Sans SC';white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--fast) var(--ease);z-index:100}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--inverse-surface);color:var(--inverse-on);padding:4px 8px;border-radius:var(--r-sm);font:400 12px/16px system-ui, sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--fast) var(--ease);z-index:100}
 *:hover>.tooltip{opacity:1}
 
 /* ========== MD3 Search Bar ========== */
 .search-bar{display:flex;align-items:center;gap:8px;height:56px;padding:0 16px;background:var(--sc-high);border-radius:var(--r-xl);box-shadow:var(--e1);margin-bottom:16px}
 .search-bar .material-symbols-outlined{color:var(--on-surface-variant);font-size:24px}
-.search-bar input{flex:1;border:none;background:none;font:400 16px/24px 'Noto Sans SC';color:var(--on-surface);outline:none}
+.search-bar input{flex:1;border:none;background:none;font:400 16px/24px system-ui, sans-serif;color:var(--on-surface);outline:none}
 .search-bar input::placeholder{color:var(--on-surface-variant)}
 
 /* ========== MD3 Segmented Button ========== */
 .segmented-btn-group{display:inline-flex;border:1px solid var(--outline);border-radius:20px;overflow:hidden}
-.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px 'Noto Sans SC';color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:all var(--fast) var(--ease)}
+.segmented-btn{padding:10px 24px;border:none;background:transparent;font:500 14px/20px system-ui, sans-serif;color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline);transition:all var(--fast) var(--ease)}
 .segmented-btn:last-child{border-right:none}
 .segmented-btn.active{background:var(--secondary-container);color:var(--on-secondary-container)}
 .segmented-btn:hover:not(.active){background:var(--sc)}
@@ -247,8 +244,8 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .list-item:active{background:rgba(28,27,31,.12)}
 .list-item .leading{color:var(--on-surface-variant)}
 .list-item .content{flex:1;min-width:0}
-.list-item .headline{font:400 16px/24px 'Noto Sans SC';color:var(--on-surface)}
-.list-item .supporting{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant)}
+.list-item .headline{font:400 16px/24px system-ui, sans-serif;color:var(--on-surface)}
+.list-item .supporting{font:400 14px/20px system-ui, sans-serif;color:var(--on-surface-variant)}
 .list-item .trailing{color:var(--on-surface-variant)}
 
 /* ========== MD3 Animate ========== */
@@ -264,7 +261,6 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 .card-elevated:hover{box-shadow:var(--e2)}
 .card-filled{background:var(--sc-highest);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
 .card-outlined{background:var(--surface);border:1px solid var(--outline-variant);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
-
 </style>
 </head>
 <body>
@@ -294,7 +290,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
   <div class="main-content">
     <!-- ===== PAGE: CLEAN ===== -->
     <div class="page active" id="page-clean">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
         <span class="material-symbols-outlined" style="color:var(--primary)">auto_stories</span>
         Clear Book
       </h1>
@@ -325,7 +321,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
         <!-- Homophone Dictionary -->
         <div class="card-title" style="margin-top:24px"><span class="material-symbols-outlined">dictionary</span>同音字混淆词典</div>
-        <p style="font:400 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);margin-bottom:12px">
+        <p style="font:400 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);margin-bottom:12px">
           内置广告混淆词典 + 智能拼音检测。可自定义扩展。
         </p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
@@ -387,7 +383,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: CONVERT ===== -->
     <div class="page" id="page-convert">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
         <span class="material-symbols-outlined" style="color:var(--primary)">swap_horiz</span>
         格式转换
       </h1>
@@ -430,7 +426,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: MARKET ===== -->
     <div class="page" id="page-market">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
         <span class="material-symbols-outlined" style="color:var(--primary)">store</span>
         规则市场
       </h1>
@@ -454,13 +450,13 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 
     <!-- ===== PAGE: AI ===== -->
     <div class="page" id="page-ai">
-      <h1 style="font:700 22px/28px 'Noto Sans SC';margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <h1 style="font:700 22px/28px system-ui, sans-serif;margin-bottom:24px;display:flex;align-items:center;gap:12px">
         <span class="material-symbols-outlined" style="color:var(--primary)">psychology</span>
         AI 规则生成
       </h1>
       <div class="card">
         <div class="card-title"><span class="material-symbols-outlined">info</span>使用方法</div>
-        <ol style="font:400 14px/24px 'Noto Sans SC';color:var(--on-surface);padding-left:20px">
+        <ol style="font:400 14px/24px system-ui, sans-serif;color:var(--on-surface);padding-left:20px">
           <li>点击下方<strong>复制提示词</strong></li>
           <li>将提示词 + 你的 TXT 文件发给任意 AI（ChatGPT / Claude / Gemini 等）</li>
           <li>AI 会分析你的文件并返回清洗规则 JSON</li>
@@ -499,8 +495,9 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
 
-
+</body>
 <script>
 // ==================== MD3 COMPONENT CLASSES ====================
 
@@ -620,8 +617,7 @@ function showConfirm({ icon, title, content, confirmText = '确定', cancelText 
   });
 }
 
-
-
+<script>
 // ==================== PINYIN TABLE ====================
 const PY_MAP = {
   '啊':'a','阿':'a','呵':'a','嗄':'a','锕':'a',
@@ -1825,7 +1821,7 @@ async function installPack(id) {
   snackbar.show(`已安装 ${pack.name}（${pack.rules.length} 条规则）`);
 }
 
-async function exportPack(id) {
+function exportPack(id) {
   let pack = [...COMMUNITY_PACKS, ...marketplacePacks].find(p => p.id === id);
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
@@ -1846,10 +1842,10 @@ function showCreateRulePack() {
     <div class="modal">
       <div class="modal-title"><span class="material-symbols-outlined">add_box</span>创建规则包</div>
       <div style="display:grid;gap:12px">
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">名称</label><input type="text" id="packName" placeholder="如：我的小说清理规则"></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">作者</label><input type="text" id="packAuthor" placeholder="你的名字"></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">描述</label><textarea id="packDesc" placeholder="这个规则包做什么" rows="2"></textarea></div>
-        <div><label style="font:500 12px/16px 'Noto Sans SC';color:var(--on-surface-variant);display:block;margin-bottom:4px">规则（每行一个正则）</label><textarea id="packRules" placeholder="关注公众号.*?领取\\n本小说来自.*?首发" rows="4" style="font-family:monospace"></textarea></div>
+        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">名称</label><input type="text" id="packName" placeholder="如：我的小说清理规则"></div>
+        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">作者</label><input type="text" id="packAuthor" placeholder="你的名字"></div>
+        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">描述</label><textarea id="packDesc" placeholder="这个规则包做什么" rows="2"></textarea></div>
+        <div><label style="font:500 12px/16px system-ui, sans-serif;color:var(--on-surface-variant);display:block;margin-bottom:4px">规则（每行一个正则）</label><textarea id="packRules" placeholder="关注公众号.*?领取\\n本小说来自.*?首发" rows="4" style="font-family:monospace"></textarea></div>
       </div>
       <div class="btn-row" style="margin-top:16px;justify-content:flex-end">
         <button class="btn btn-text" onclick="this.closest('.modal-overlay').remove()">取消</button>
@@ -2018,6 +2014,12 @@ function importAIRules() {
 
 // ==================== TOAST ====================
 function toast(msg) { snackbar.show(msg); }
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
 
 // ==================== INIT ====================
 
@@ -2029,11 +2031,10 @@ async function checkForUpdates() {
     if (resp.ok) {
       const data = await resp.json();
       if (data.version !== APP_VERSION) {
-        showConfirm({
-          title: '发现新版本',
-          content: `v${data.version}（当前 v${APP_VERSION}）`,
-          onConfirm: () => { window.location.href = data.url || 'https://hrk666666.github.io/clearbook/'; }
-        });
+        showConfirm({`发现新版本 v${data.version}（当前 v${APP_VERSION}）\n\n${data.changelog || ''}\n\n是否更新？`);
+        
+          window.location.href = data.url || `https://hrk666666.github.io/clearbook-rules/`;
+        }
       }
     }
   } catch(e) {}
@@ -2047,12 +2048,10 @@ renderRules();
 renderUserDict();
 renderCustomRules();
 initAI();
-
+</script>
 initRipples();
 
 // ==================== INIT MD3 ====================
 initRipples();
-
 </script>
-</body>
 </html>
