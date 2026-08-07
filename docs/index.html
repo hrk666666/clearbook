@@ -290,7 +290,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
       <div class="icon-wrap"><span class="material-symbols-outlined">psychology</span></div>
       <span class="label">AI</span>
     </a>
-    <span class="version">v1.6.0</span>
+    <span class="version">v1.7.0</span>
   </nav>
 
   <div class="main-content">
@@ -1246,7 +1246,8 @@ function detectPatterns(text) {
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
 
-uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
+  uploadZone.addEventListener('touchend', (e) => { e.preventDefault(); fileInput.click(); });
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
 uploadZone.addEventListener('drop', e => {
@@ -1757,7 +1758,8 @@ function importDict(event) {
 const convertUploadZone = document.getElementById('convertUploadZone');
 const convertFileInput = document.getElementById('convertFileInput');
 
-convertUploadZone.addEventListener('click', () => convertFileInput.click());
+convertUploadZone.addEventListener('click', (e) => { e.preventDefault(); convertFileInput.click(); });
+  convertUploadZone.addEventListener('touchend', (e) => { e.preventDefault(); convertFileInput.click(); });
 convertUploadZone.addEventListener('dragover', e => { e.preventDefault(); convertUploadZone.classList.add('dragover'); });
 convertUploadZone.addEventListener('dragleave', () => convertUploadZone.classList.remove('dragover'));
 convertUploadZone.addEventListener('drop', e => {
