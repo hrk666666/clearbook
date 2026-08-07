@@ -1,14 +1,19 @@
 package com.clearbook;
 
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -25,7 +30,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Immersive fullscreen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -55,21 +59,47 @@ public class MainActivity extends Activity {
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
-        settings.setLoadWithOverviewMode(true);
 
-        // Disable scroll bounce effect
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        // Add JS interface for native communication
+        // JS interface
         webView.addJavascriptInterface(new Object() {
             @JavascriptInterface
-            public void onPageReady() {
-                // Page loaded, hide splash if any
-            }
-            
+            public void onPageReady() {}
+
             @JavascriptInterface
             public String getAppVersion() {
-                return "1.7.0";
+                return "1.8.0";
+            }
+
+            @JavascriptInterface
+            public void downloadFile(String filename, String base64Content, String mimeType) {
+                try {
+                    byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);
+                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    java.io.File file = new java.io.File(dir, filename);
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
+                    fos.write(data);
+                    fos.close();
+
+                    // Notify media scanner
+                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    mediaScanIntent.setData(Uri.fromFile(file));
+                    sendBroadcast(mediaScanIntent);
+
+                    // Show notification
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('已保存到下载目录: " + filename + "')", null
+                        );
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('下载失败: " + e.getMessage() + "')", null
+                        );
+                    });
+                }
             }
         }, "Android");
 
@@ -77,12 +107,49 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Inject native-style CSS
                 view.evaluateJavascript(
                     "document.body.style.scrollbarWidth='none';" +
                     "document.documentElement.style.scrollbarWidth='none';",
                     null
                 );
+            }
+        });
+
+        // Handle downloads
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
+            if (url.startsWith("blob:")) {
+                // Handle blob URLs - extract content via JS
+                webView.evaluateJavascript(
+                    "(function() {" +
+                    "  var xhr = new XMLHttpRequest();" +
+                    "  xhr.open('GET', '" + url + "');" +
+                    "  xhr.responseType = 'blob';" +
+                    "  xhr.onload = function() {" +
+                    "    var reader = new FileReader();" +
+                    "    reader.onloadend = function() {" +
+                    "      var base64 = reader.result.split(',')[1];" +
+                    "      Android.downloadFile('clearbook_clean.txt', base64, 'text/plain');" +
+                    "    };" +
+                    "    reader.readAsDataURL(xhr.response);" +
+                    "  };" +
+                    "  xhr.send();" +
+                    "})();",
+                    null
+                );
+            } else {
+                // Handle regular URLs
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                request.setMimeType(mimeType);
+                request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url));
+                request.addRequestHeader("User-Agent", userAgent);
+                request.setDescription("Downloading...");
+                request.setTitle(filename != null ? filename : "download");
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename != null ? filename : "download");
+                DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                dm.enqueue(request);
+                snackbar.show("开始下载...");
             }
         });
 

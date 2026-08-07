@@ -1595,14 +1595,32 @@ function hideResult() {
 
 // ==================== ACTIONS ====================
 function downloadResult() {
-  const blob = new Blob([cleanedText], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  const dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  var dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  
+  // Try native Android download first
+  if (window.Android && window.Android.downloadFile) {
+    try {
+      var base64 = btoa(unescape(encodeURIComponent(cleanedText)));
+      window.Android.downloadFile(dlName, base64, 'text/plain');
+      snackbar.show('正在保存到下载目录...');
+      return;
+    } catch(e) {}
+  }
+  
+  // Web fallback
+  var blob = new Blob([cleanedText], {type:'text/plain;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
   a.download = dlName;
+  a.style.display = 'none';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(a.href);
-  snackbar.show(`已下载 ${dlName} (${formatSize(blob.size)})`);
+  setTimeout(function() {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
+  snackbar.show('已下载 ' + dlName + ' (' + formatSize(blob.size) + ')');
 }
 
 function copyResult() {
