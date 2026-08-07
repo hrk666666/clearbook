@@ -2264,12 +2264,6 @@ function importAIRules() {
       setTimeout(function() { cleanText(); }, 500);
     }
     
-    // Visual feedback - highlight the custom rules section
-    const customSection = document.getElementById('customRulesList');
-    if (customSection) {
-      customSection.style.background = 'var(--primary-container)';
-      setTimeout(() => { customSection.style.background = ''; }, 2000);
-    }
   } catch(e) {
     snackbar.show('JSON 解析失败：' + e.message);
   }
