@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
 
             @JavascriptInterface
             public String getAppVersion() {
-                return "1.9.0";
+                return "1.10.0";
             }
 
             @JavascriptInterface
