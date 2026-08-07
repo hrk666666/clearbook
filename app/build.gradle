@@ -10,28 +10,28 @@ android {
         applicationId "com.clearbook"
         minSdk 24
         targetSdk 34
-        versionCode 9
-        versionName "1.8.0"
+        versionCode 10
+        versionName "1.9.0"
     }
 
     signingConfigs {
-        debug {
+        release {
             storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storePassword 'clearbook123'
+            keyAlias 'clearbook'
+            keyPassword 'clearbook123'
         }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             debuggable true
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 
