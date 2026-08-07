@@ -29,7 +29,8 @@
   --fast:200ms;--med:300ms;--ease:cubic-bezier(.2,0,0,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font:500 16px/24px 'Noto Sans SC',sans-serif;background:var(--bg);color:var(--on-bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-overflow-scrolling:touch}
+input,textarea{-webkit-user-select:text;user-select:text}
 /* Nav Rail */
 .app-shell{display:flex;min-height:100vh}
 .nav-rail{width:80px;background:var(--sc-low);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;position:fixed;top:0;left:0;bottom:0;z-index:50}
@@ -209,8 +210,10 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
 /* ========== MD3 Progress ========== */
 .progress-linear{height:4px;background:var(--primary-container);border-radius:2px;overflow:hidden;position:relative}
 .progress-linear .bar{height:100%;background:var(--primary);border-radius:2px;transition:width var(--med) var(--ease)}
-.progress-linear.indeterminate .bar{width:40%;animation:progress-indeterminate 1.8s var(--ease) infinite}
-@keyframes progress-indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+.progress-linear.indeterminate{position:relative}
+.progress-linear.indeterminate .bar{width:40%;position:absolute;left:-40%;animation:progress-indeterminate 2s var(--ease) infinite}
+.progress-linear.indeterminate .bar2{width:40%;position:absolute;left:-40%;background:var(--primary);border-radius:2px;animation:progress-indeterminate 2s var(--ease) 0.8s infinite}
+@keyframes progress-indeterminate{0%{left:-40%}50%{left:60%}100%{left:100%}}
 
 /* ========== MD3 Divider ========== */
 .divider{height:1px;background:var(--outline-variant);margin:8px 0}
@@ -290,7 +293,7 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
       <div class="icon-wrap"><span class="material-symbols-outlined">psychology</span></div>
       <span class="label">AI</span>
     </a>
-    <span class="version">v1.7.0</span>
+    <span class="version">v1.8.0</span>
   </nav>
 
   <div class="main-content">
@@ -379,8 +382,9 @@ textarea{min-height:80px;word-break:break-all;white-space:pre-wrap}
           <span class="material-symbols-outlined" style="color:var(--primary);font-size:20px">autorenew</span>
           <span id="progressText" style="font:500 14px/20px 'Noto Sans SC';color:var(--on-surface)">清洗中...</span>
         </div>
-        <div class="progress-linear">
+        <div class="progress-linear" id="progressLinear">
           <div class="bar" id="progressBar" style="width:0%"></div>
+          <div class="bar bar2" id="progressBar2" style="display:none"></div>
         </div>
       </div>
       <div id="stats" style="display:none"></div>
@@ -1367,6 +1371,8 @@ async function cleanText() {
   var progressText = document.getElementById('progressText');
   progressEl.style.display = 'block';
   progressBar.style.width = '0%';
+  document.getElementById('progressBar2').style.display = 'none';
+  document.getElementById('progressLinear').classList.remove('indeterminate');
   progressText.textContent = '准备清洗...';
   document.getElementById('btnClean').disabled = true;
   
@@ -2177,6 +2183,12 @@ function copyAIPrompt() {
   } catch(e) { snackbar.show('复制失败'); }
 }
 
+let aiPriorityMode = false;
+function toggleAIPriority(val) {
+  aiPriorityMode = val;
+  snackbar.show(val ? 'AI 规则优先执行' : 'AI 规则按默认顺序执行');
+}
+
 function importAIRules() {
   const input = document.getElementById('aiResponse').value.trim();
   if (!input) return snackbar.show('请粘贴 AI 返回的 JSON');
@@ -2224,7 +2236,7 @@ function importAIRules() {
     renderUserDict();
     document.getElementById('aiResponse').value = '';
     
-    // Show detailed feedback
+    // Show detailed feedback with visual confirmation
     let msg = '';
     if (ruleCount > 0) msg += '已导入 ' + ruleCount + ' 条规则';
     if (ruleCount > 0 && homoCount > 0) msg += ' + ';
@@ -2233,8 +2245,22 @@ function importAIRules() {
     if (ruleCount === 0 && homoCount === 0) msg = '未找到有效规则';
     snackbar.show(msg);
     
+    // Visual feedback - flash the custom rules section
+    const customSection = document.getElementById('customRulesList');
+    if (customSection && ruleCount > 0) {
+      customSection.style.background = 'var(--primary-container)';
+      customSection.style.borderRadius = 'var(--r-sm)';
+      customSection.style.padding = '8px';
+      customSection.style.transition = 'all 0.3s ease';
+      setTimeout(function() {
+        customSection.style.background = '';
+        customSection.style.padding = '';
+      }, 2000);
+    }
+    
     // Auto-clean after import if file is loaded
     if (originalText && ruleCount > 0) {
+      snackbar.show(msg + ' - 自动清洗中...');
       setTimeout(function() { cleanText(); }, 500);
     }
     
@@ -2251,6 +2277,34 @@ function importAIRules() {
 
 // ==================== TOAST ====================
 function toast(msg) { snackbar.show(msg); }
+
+// ==================== WEBVIEW NATIVE DISGUISE ====================
+(function() {
+  // Disable long press context menu
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  
+  // Disable text selection on non-input elements
+  document.addEventListener('selectstart', function(e) {
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+    }
+  });
+  
+  // Disable pull-to-refresh bounce
+  document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  
+  // Hide scrollbar
+  var style = document.createElement('style');
+  style.textContent = '::-webkit-scrollbar{display:none}body{scrollbar-width:none;-ms-overflow-style:none}';
+  document.head.appendChild(style);
+  
+  // Notify native that page is ready
+  if (window.Android && window.Android.onPageReady) {
+    window.Android.onPageReady();
+  }
+})();
 
 // ==================== INIT ====================
 
