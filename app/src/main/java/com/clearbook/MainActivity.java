@@ -138,18 +138,41 @@ public class MainActivity extends Activity {
                 );
             } else {
                 // Handle regular URLs
+                String filename = "download";
+                if (contentDisposition != null) {
+                    try {
+                        android.net.Uri dispositionUri = android.net.Uri.parse("http://a/?" + contentDisposition);
+                        String cdFilename = dispositionUri.getQueryParameter("filename");
+                        if (cdFilename != null && !cdFilename.isEmpty()) {
+                            filename = cdFilename;
+                        }
+                    } catch (Exception ignored) {}
+                }
+                if (filename.equals("download") && url != null) {
+                    try {
+                        String path = android.net.Uri.parse(url).getLastPathSegment();
+                        if (path != null && !path.isEmpty()) {
+                            filename = path;
+                        }
+                    } catch (Exception ignored) {}
+                }
+                final String finalFilename = filename;
                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                 request.setMimeType(mimeType);
                 request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url));
                 request.addRequestHeader("User-Agent", userAgent);
                 request.setDescription("Downloading...");
-                request.setTitle(filename != null ? filename : "download");
+                request.setTitle(finalFilename);
                 request.allowScanningByMediaScanner();
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename != null ? filename : "download");
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, finalFilename);
                 DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                 dm.enqueue(request);
-                snackbar.show("开始下载...");
+                runOnUiThread(() -> {
+                    webView.evaluateJavascript(
+                        "snackbar.show('开始下载...')", null
+                    );
+                });
             }
         });
 
