@@ -78,6 +78,20 @@ public class MainActivity extends Activity {
             }
 
             @JavascriptInterface
+            public void openExternal(String url) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('无法打开链接')", null
+                        );
+                    });
+                }
+            }
+
+            @JavascriptInterface
             public void downloadFile(String filename, String base64Content, String mimeType) {
                 try {
                     byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);

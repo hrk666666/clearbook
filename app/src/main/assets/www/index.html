@@ -1097,11 +1097,17 @@ let MARKET_CATEGORIES = [];
 RULE_GROUPS.forEach(g => g.rules.forEach(r => { rules[r.id] = true; }));
 
 // ==================== NAVIGATION ====================
+let _currentPage = 'clean';
 function navigate(page) {
+  if (page === _currentPage) return;
+  // If there's unsaved cleaned text, confirm before leaving
+  if (_currentPage === 'clean' && cleanedText && !confirm('切换页面后清洗结果将丢失，确定离开？')) return;
+  if (_currentPage === 'convert' && convertedText && !confirm('切换页面后转换结果将丢失，确定离开？')) return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+  _currentPage = page;
   if (page === 'market') renderMarketplace();
 }
 
@@ -1595,34 +1601,35 @@ function hideResult() {
   document.getElementById('btnReset').style.display = 'none';
 }
 
-// ==================== ACTIONS ====================
-function downloadResult() {
-  var dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
-  
+// ==================== UNIFIED DOWNLOAD HELPER ====================
+function downloadFileHelper(filename, content, mimeType) {
   // Try native Android download first
   if (window.Android && window.Android.downloadFile) {
     try {
-      var base64 = btoa(unescape(encodeURIComponent(cleanedText)));
-      window.Android.downloadFile(dlName, base64, 'text/plain');
+      var base64 = btoa(unescape(encodeURIComponent(content)));
+      window.Android.downloadFile(filename, base64, mimeType || 'text/plain');
       snackbar.show('正在保存到下载目录...');
       return;
-    } catch(e) {}
+    } catch(e) { /* fall through */ }
   }
-  
-  // Web fallback
-  var blob = new Blob([cleanedText], {type:'text/plain;charset=utf-8'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = dlName;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function() {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 1000);
-  snackbar.show('已下载 ' + dlName + ' (' + formatSize(blob.size) + ')');
+  // Web fallback: try blob URL
+  try {
+    var blob = new Blob([content], {type: mimeType || 'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    snackbar.show('已下载 ' + filename);
+  } catch(e) {
+    snackbar.show('下载失败: ' + e.message);
+  }
+}
+
+// ==================== ACTIONS ====================
+function downloadResult() {
+  var dlName = fileName.replace(/\.txt$/i, '') + '_clean.txt';
+  downloadFileHelper(dlName, cleanedText, 'text/plain');
 }
 
 function copyResult() {
@@ -1661,6 +1668,7 @@ function copyResult() {
 }
 
 function resetAll() {
+  if (!confirm('确定重置？所有文件和清洗结果将被清空。')) return;
   originalText = ''; cleanedText = ''; fileName = '';
   document.getElementById('fileInfo').classList.remove('show');
   document.getElementById('btnClean').disabled = true;
@@ -1760,10 +1768,8 @@ function showBuiltinDict() {
 
 function exportDict() {
   const data = {builtin: HOMOPHONE_DICT, user: userHomophoneDict, version: 1};
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'clearbook-dict.json'; a.click(); URL.revokeObjectURL(a.href);
-  snackbar.show("词典已导出");
+  const json = JSON.stringify(data, null, 2);
+  downloadFileHelper('clearbook-dict.json', json, 'application/json');
 }
 
 function importDict(event) {
@@ -1921,13 +1927,8 @@ function stripHtmlAds(doc) {
 }
 
 function downloadConverted() {
-  const blob = new Blob([convertedText], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = convertedFileName.replace(/\.[^.]+$/, '') + '.txt';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  snackbar.show("已下载 TXT");
+  const dlName = convertedFileName.replace(/\.[^.]+$/, '') + '.txt';
+  downloadFileHelper(dlName, convertedText, 'text/plain');
 }
 
 // ==================== MARKETPLACE ====================
@@ -2021,10 +2022,7 @@ async function exportPack(id) {
     const detail = await fetchPackDetail(id);
     if (detail) pack = {...pack, ...detail};
   }
-  const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `clearbook-${pack.id}.json`; a.click(); URL.revokeObjectURL(a.href);
-  snackbar.show('已导出规则包');
+  downloadFileHelper(`clearbook-${pack.id}.json`, JSON.stringify(pack, null, 2), 'application/json');
 }
 
 function showCreateRulePack() {
@@ -2103,16 +2101,14 @@ function createRulePack() {
       content: '<p style="margin-bottom:12px">规则包已创建并保存到本地。</p><p>你可以：</p><ul style="padding-left:20px;margin-top:8px"><li>提交到 GitHub 规则市场（需 GitHub 账号）</li><li>导出为 JSON 文件手动分享</li></ul>',
       actions: [
         { text: '导出 JSON', type: 'text', fn: () => {
-          const blob = new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'});
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'clearbook-' + pack.id + '.json';
-          a.click();
-          URL.revokeObjectURL(a.href);
-          snackbar.show('已导出规则包');
+          downloadFileHelper('clearbook-' + pack.id + '.json', JSON.stringify(pack, null, 2), 'application/json');
         }},
         { text: '提交到 GitHub', type: 'filled', fn: () => {
-          window.open(issueUrl, '_blank');
+          if (window.Android && window.Android.openExternal) {
+            window.Android.openExternal(issueUrl);
+          } else {
+            window.open(issueUrl, '_blank');
+          }
           snackbar.show('已打开 GitHub Issues');
         }}
       ]
