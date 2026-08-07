@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +26,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
     private static final int FILE_CHOOSER_REQUEST = 1;
+    private static final int PERMISSION_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,9 @@ public class MainActivity extends Activity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             );
         }
+
+        // Request storage permissions at runtime
+        requestStoragePermissions();
 
         webView = new WebView(this);
         setContentView(webView);
@@ -69,7 +74,7 @@ public class MainActivity extends Activity {
 
             @JavascriptInterface
             public String getAppVersion() {
-                return "1.8.0";
+                return "1.9.0";
             }
 
             @JavascriptInterface
@@ -77,6 +82,7 @@ public class MainActivity extends Activity {
                 try {
                     byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);
                     java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists()) dir.mkdirs();
                     java.io.File file = new java.io.File(dir, filename);
                     java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
                     fos.write(data);
@@ -87,7 +93,6 @@ public class MainActivity extends Activity {
                     mediaScanIntent.setData(Uri.fromFile(file));
                     sendBroadcast(mediaScanIntent);
 
-                    // Show notification
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
                             "snackbar.show('已保存到下载目录: " + filename + "')", null
@@ -118,7 +123,6 @@ public class MainActivity extends Activity {
         // Handle downloads
         webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
             if (url.startsWith("blob:")) {
-                // Handle blob URLs - extract content via JS
                 webView.evaluateJavascript(
                     "(function() {" +
                     "  var xhr = new XMLHttpRequest();" +
@@ -137,7 +141,6 @@ public class MainActivity extends Activity {
                     null
                 );
             } else {
-                // Handle regular URLs
                 String filename = "download";
                 if (contentDisposition != null) {
                     try {
@@ -157,25 +160,34 @@ public class MainActivity extends Activity {
                     } catch (Exception ignored) {}
                 }
                 final String finalFilename = filename;
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                request.setMimeType(mimeType);
-                request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url));
-                request.addRequestHeader("User-Agent", userAgent);
-                request.setDescription("Downloading...");
-                request.setTitle(finalFilename);
-                request.allowScanningByMediaScanner();
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, finalFilename);
-                DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                dm.enqueue(request);
-                runOnUiThread(() -> {
-                    webView.evaluateJavascript(
-                        "snackbar.show('开始下载...')", null
-                    );
-                });
+                try {
+                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                    request.setMimeType(mimeType);
+                    request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url));
+                    request.addRequestHeader("User-Agent", userAgent);
+                    request.setDescription("Downloading...");
+                    request.setTitle(finalFilename);
+                    request.allowScanningByMediaScanner();
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, finalFilename);
+                    DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                    dm.enqueue(request);
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('开始下载: " + finalFilename + "')", null
+                        );
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('下载失败: " + e.getMessage() + "')", null
+                        );
+                    });
+                }
             }
         });
 
+        // File chooser - use ACTION_GET_CONTENT for better compatibility
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView webView,
@@ -185,9 +197,35 @@ public class MainActivity extends Activity {
                     filePathCallback.onReceiveValue(null);
                 }
                 filePathCallback = callback;
-                Intent intent = fileChooserParams.createIntent();
+
+                // Try FileChooserParams first, fallback to ACTION_GET_CONTENT
+                Intent intent = null;
                 try {
-                    startActivityForResult(intent, FILE_CHOOSER_REQUEST);
+                    intent = fileChooserParams.createIntent();
+                } catch (Exception ignored) {}
+
+                if (intent == null) {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    // Add accepted types from HTML accept attribute
+                    String[] acceptTypes = fileChooserParams.getAcceptTypes();
+                    if (acceptTypes != null && acceptTypes.length > 0) {
+                        StringBuilder mimeBuilder = new StringBuilder();
+                        for (String type : acceptTypes) {
+                            if (type != null && !type.isEmpty() && !type.equals("*/*")) {
+                                if (mimeBuilder.length() > 0) mimeBuilder.append(",");
+                                mimeBuilder.append(type);
+                            }
+                        }
+                        if (mimeBuilder.length() > 0) {
+                            intent.setType(mimeBuilder.toString());
+                        }
+                    }
+                }
+
+                try {
+                    startActivityForResult(Intent.createChooser(intent, "选择文件"), FILE_CHOOSER_REQUEST);
                 } catch (Exception e) {
                     filePathCallback = null;
                     return false;
@@ -197,6 +235,31 @@ public class MainActivity extends Activity {
         });
 
         webView.loadUrl("file:///android_asset/www/index.html");
+    }
+
+    private void requestStoragePermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] perms = {
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            };
+            boolean needRequest = false;
+            for (String p : perms) {
+                if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                    needRequest = true;
+                    break;
+                }
+            }
+            if (needRequest) {
+                requestPermissions(perms, PERMISSION_REQUEST);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // Permissions handled - DownloadManager works without WRITE permission on Android 10+
     }
 
     @Override

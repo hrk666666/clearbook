@@ -1250,8 +1250,21 @@ function detectPatterns(text) {
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
 
-uploadZone.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
-  uploadZone.addEventListener('touchend', (e) => { e.preventDefault(); fileInput.click(); });
+let _uploadLock = false;
+uploadZone.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (_uploadLock) return;
+  _uploadLock = true;
+  setTimeout(() => { _uploadLock = false; }, 500);
+  fileInput.click();
+});
+uploadZone.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (_uploadLock) return;
+  _uploadLock = true;
+  setTimeout(() => { _uploadLock = false; }, 500);
+  fileInput.click();
+});
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
 uploadZone.addEventListener('drop', e => {
@@ -1784,8 +1797,21 @@ function importDict(event) {
 const convertUploadZone = document.getElementById('convertUploadZone');
 const convertFileInput = document.getElementById('convertFileInput');
 
-convertUploadZone.addEventListener('click', (e) => { e.preventDefault(); convertFileInput.click(); });
-  convertUploadZone.addEventListener('touchend', (e) => { e.preventDefault(); convertFileInput.click(); });
+let _convertLock = false;
+convertUploadZone.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (_convertLock) return;
+  _convertLock = true;
+  setTimeout(() => { _convertLock = false; }, 500);
+  convertFileInput.click();
+});
+convertUploadZone.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (_convertLock) return;
+  _convertLock = true;
+  setTimeout(() => { _convertLock = false; }, 500);
+  convertFileInput.click();
+});
 convertUploadZone.addEventListener('dragover', e => { e.preventDefault(); convertUploadZone.classList.add('dragover'); });
 convertUploadZone.addEventListener('dragleave', () => convertUploadZone.classList.remove('dragover'));
 convertUploadZone.addEventListener('drop', e => {
