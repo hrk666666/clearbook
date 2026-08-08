@@ -119,6 +119,43 @@ public class MainActivity extends Activity {
                 }
             }
 
+
+            // Material You 动态取色（Android 12+ 从系统壁纸自动取色）
+            @JavascriptInterface
+            public String getDynamicColors() {
+                if (Build.VERSION.SDK_INT < 31) return "";
+                try {
+                    int primary = getColor(android.R.color.system_accent1_500);
+                    int onPrimary = luminance(primary) > 0.5 ? 0xFF1C1B1F : 0xFFFFFFFF;
+                    int primaryContainer = getColor(android.R.color.system_accent1_100);
+                    int onPrimaryContainer = getColor(android.R.color.system_accent1_900);
+                    int secondary = getColor(android.R.color.system_accent2_500);
+                    int secondaryContainer = getColor(android.R.color.system_accent2_100);
+                    int onSecondaryContainer = getColor(android.R.color.system_accent2_900);
+                    int tertiary = getColor(android.R.color.system_accent3_500);
+                    int tertiaryContainer = getColor(android.R.color.system_accent3_100);
+                    int inversePrimary = getColor(android.R.color.system_accent1_200);
+                    // 同步状态栏颜色
+                    runOnUiThread(() -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            getWindow().setStatusBarColor(primary);
+                        }
+                    });
+                    return String.format(
+                        "{\"primary\":\"#%06X\",\"onPrimary\":\"#%06X\",\"primaryContainer\":\"#%06X\",\"onPrimaryContainer\":\"#%06X\",\"secondary\":\"#%06X\",\"secondaryContainer\":\"#%06X\",\"onSecondaryContainer\":\"#%06X\",\"tertiary\":\"#%06X\",\"tertiaryContainer\":\"#%06X\",\"inversePrimary\":\"#%06X\"}",
+                        0xFFFFFF & primary, 0xFFFFFF & onPrimary, 0xFFFFFF & primaryContainer, 0xFFFFFF & onPrimaryContainer,
+                        0xFFFFFF & secondary, 0xFFFFFF & secondaryContainer, 0xFFFFFF & onSecondaryContainer,
+                        0xFFFFFF & tertiary, 0xFFFFFF & tertiaryContainer, 0xFFFFFF & inversePrimary);
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+
+            private double luminance(int color) {
+                int r = (color >> 16) & 0xFF, g = (color >> 8) & 0xFF, b = color & 0xFF;
+                return (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+            }
+
             private String sanitizeFilename(String name) {
                 if (name == null || name.isEmpty()) return "clearbook.txt";
                 String safe = name.replaceAll("[\\\\/:*?\"<>|\\n\\r\\t]", "_");
