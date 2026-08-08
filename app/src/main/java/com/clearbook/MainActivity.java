@@ -92,24 +92,31 @@ public class MainActivity extends Activity {
             }
 
             @JavascriptInterface
-            public void downloadFile(String filename, String base64Content, String mimeType) {
-                String result;
+            public String downloadFile(String filename, String base64Content, String mimeType) {
                 try {
                     byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);
-                    result = saveToDownloads(filename, data, mimeType);
+                    String[] r = saveToDownloads(filename, data, mimeType);
+                    // r[0]=显示路径, r[1]=uri(可打开), r[2]=是否因同名被重命名(0/1)
+                    return "OK\u0001" + r[0] + "\u0001" + (r[1] != null ? r[1] : "") + "\u0001" + r[2];
                 } catch (Exception e) {
-                    result = "ERROR:" + String.valueOf(e.getMessage());
+                    return "ERR\u0001" + String.valueOf(e.getMessage());
                 }
-                final String finalResult = result;
-                runOnUiThread(() -> {
-                    String js;
-                    if (finalResult.startsWith("ERROR:")) {
-                        js = "snackbar.show('下载失败: " + escapeJs(finalResult.substring(6)) + "')";
-                    } else {
-                        js = "snackbar.show('已保存: " + escapeJs(finalResult) + "')";
-                    }
-                    webView.evaluateJavascript(js, null);
-                });
+            }
+
+            @JavascriptInterface
+            public void openFile(String uri, String mimeType) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse(uri), (mimeType != null && !mimeType.isEmpty()) ? mimeType : "text/plain");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        webView.evaluateJavascript(
+                            "snackbar.show('无法打开文件: " + escapeJs(String.valueOf(e.getMessage())) + "')", null
+                        );
+                    });
+                }
             }
 
             private String sanitizeFilename(String name) {
@@ -118,7 +125,7 @@ public class MainActivity extends Activity {
                 return safe;
             }
 
-            private String saveToDownloads(String filename, byte[] data, String mimeType) throws Exception {
+            private String[] saveToDownloads(String filename, byte[] data, String mimeType) throws Exception {
                 String safeName = sanitizeFilename(filename);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     // Android 10+: MediaStore 两阶段写入（IS_PENDING 必需，否则部分设备 insert 返回 null）
@@ -138,7 +145,21 @@ public class MainActivity extends Activity {
                         values.clear();
                         values.put(android.provider.MediaStore.Downloads.IS_PENDING, 0);
                         getContentResolver().update(item, values, null, null);
-                        return "Download/" + safeName;
+                        // 读取实际保存的文件名（同名时系统会自动加 (1) 后缀）
+                        String actualName = safeName;
+                        boolean renamed = false;
+                        try {
+                            android.database.Cursor c = getContentResolver().query(item,
+                                new String[]{android.provider.MediaStore.Downloads.DISPLAY_NAME}, null, null, null);
+                            if (c != null) {
+                                if (c.moveToFirst()) {
+                                    actualName = c.getString(0);
+                                    renamed = !safeName.equals(actualName);
+                                }
+                                c.close();
+                            }
+                        } catch (Exception ignore) {}
+                        return new String[]{"Download/" + actualName, item.toString(), renamed ? "1" : "0"};
                     } catch (Exception mediaStoreErr) {
                         // 兜底：写入 App 私有外部目录（无需任何权限，任何设备都可用）
                         java.io.File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS);
@@ -148,7 +169,7 @@ public class MainActivity extends Activity {
                         java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
                         fos.write(data);
                         fos.close();
-                        return "App 目录: " + file.getAbsolutePath();
+                        return new String[]{"App 目录: " + file.getAbsolutePath(), null, "0"};
                     }
                 } else {
                     // Android 9 及以下：直接写公共目录
@@ -162,7 +183,7 @@ public class MainActivity extends Activity {
                     Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     mediaScanIntent.setData(Uri.fromFile(file));
                     sendBroadcast(mediaScanIntent);
-                    return "Download/" + safeName;
+                    return new String[]{"Download/" + safeName, Uri.fromFile(file).toString(), "0"};
                 }
             }
         }, "Android");
