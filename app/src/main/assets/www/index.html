@@ -1741,10 +1741,12 @@ function downloadFileHelper(filename, content, mimeType) {
   if (window.Android && window.Android.downloadFile) {
     try {
       var base64 = base64EncodeUtf8(content);
-      window.Android.downloadFile(filename, base64, mimeType || 'text/plain');
       snackbar.show('正在保存到下载目录...');
-      return;
-    } catch(e) { /* fall through */ }
+      window.Android.downloadFile(filename, base64, mimeType || 'text/plain');
+    } catch(e) {
+      snackbar.show('下载失败: ' + e.message);
+    }
+    return;
   }
   // Web fallback: try blob URL
   try {
