@@ -95,18 +95,7 @@ public class MainActivity extends Activity {
             public void downloadFile(String filename, String base64Content, String mimeType) {
                 try {
                     byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);
-                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    if (!dir.exists()) dir.mkdirs();
-                    java.io.File file = new java.io.File(dir, filename);
-                    java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
-                    fos.write(data);
-                    fos.close();
-
-                    // Notify media scanner
-                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    mediaScanIntent.setData(Uri.fromFile(file));
-                    sendBroadcast(mediaScanIntent);
-
+                    saveToDownloads(filename, data, mimeType);
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
 "snackbar.show('已保存到下载目录: " + escapeJs(filename) + "')", null
@@ -118,6 +107,34 @@ public class MainActivity extends Activity {
 "snackbar.show('下载失败: " + escapeJs(String.valueOf(e.getMessage())) + "')", null
                         );
                     });
+                }
+            }
+
+            private void saveToDownloads(String filename, byte[] data, String mimeType) throws Exception {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Android 10+: MediaStore 公共 Downloads（分区存储）
+                    android.content.ContentValues values = new android.content.ContentValues();
+                    values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, filename);
+                    values.put(android.provider.MediaStore.Downloads.MIME_TYPE, mimeType != null ? mimeType : "application/octet-stream");
+                    values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS);
+                    android.net.Uri uri = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                    if (uri == null) throw new java.io.IOException("MediaStore insert failed");
+                    java.io.OutputStream os = getContentResolver().openOutputStream(uri);
+                    if (os == null) throw new java.io.IOException("openOutputStream failed");
+                    os.write(data);
+                    os.close();
+                } else {
+                    // Android 9 及以下：直接写公共目录
+                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists()) dir.mkdirs();
+                    java.io.File file = new java.io.File(dir, filename);
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
+                    fos.write(data);
+                    fos.close();
+                    // Notify media scanner
+                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    mediaScanIntent.setData(Uri.fromFile(file));
+                    sendBroadcast(mediaScanIntent);
                 }
             }
         }, "Android");
