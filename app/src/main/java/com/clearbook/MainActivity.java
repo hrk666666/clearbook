@@ -109,13 +109,13 @@ public class MainActivity extends Activity {
 
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
-                            "snackbar.show('已保存到下载目录: " + filename + "')", null
+"snackbar.show('已保存到下载目录: " + escapeJs(filename) + "')", null
                         );
                     });
                 } catch (Exception e) {
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
-                            "snackbar.show('下载失败: " + e.getMessage() + "')", null
+"snackbar.show('下载失败: " + escapeJs(String.valueOf(e.getMessage())) + "')", null
                         );
                     });
                 }
@@ -188,13 +188,13 @@ public class MainActivity extends Activity {
                     dm.enqueue(request);
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
-                            "snackbar.show('开始下载: " + finalFilename + "')", null
+"snackbar.show('开始下载: " + escapeJs(finalFilename) + "')", null
                         );
                     });
                 } catch (Exception e) {
                     runOnUiThread(() -> {
                         webView.evaluateJavascript(
-                            "snackbar.show('下载失败: " + e.getMessage() + "')", null
+"snackbar.show('下载失败: " + escapeJs(String.valueOf(e.getMessage())) + "')", null
                         );
                     });
                 }
@@ -292,6 +292,22 @@ public class MainActivity extends Activity {
                 filePathCallback = null;
             }
         }
+    }
+
+    private static String escapeJs(String input) {
+        if (input == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '\'': sb.append("\\'"); break;
+                case '"': sb.append("\\\""); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                default: sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     @Override
