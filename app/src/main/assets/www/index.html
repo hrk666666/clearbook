@@ -2213,6 +2213,26 @@ function filterMarket(query) {
   });
 }
 
+// Material You 动态取色（Android 12+ 从系统壁纸自动取色，覆盖官方默认色板）
+(function applyDynamicColors() {
+  if (!(window.Android && window.Android.getDynamicColors)) return;
+  try {
+    var dc = JSON.parse(window.Android.getDynamicColors());
+    if (!dc || !dc.primary) return;
+    var st = document.documentElement.style;
+    st.setProperty('--primary', dc.primary);
+    st.setProperty('--on-primary', dc.onPrimary);
+    st.setProperty('--primary-container', dc.primaryContainer);
+    st.setProperty('--on-primary-container', dc.onPrimaryContainer);
+    st.setProperty('--secondary', dc.secondary);
+    st.setProperty('--secondary-container', dc.secondaryContainer);
+    st.setProperty('--on-secondary-container', dc.onSecondaryContainer);
+    st.setProperty('--tertiary', dc.tertiary);
+    st.setProperty('--tertiary-container', dc.tertiaryContainer);
+    st.setProperty('--inverse-primary', dc.inversePrimary);
+  } catch(e) {}
+})();
+
 </script>
 
 
