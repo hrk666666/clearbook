@@ -100,7 +100,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:linear-gradient(135deg,rgba(124,77,255,.08) 0%,rgba(180,124,255,.04) 100%);box-shadow:0 0 0 4px rgba(124,77,255,.08)}
 .upload-zone .material-symbols-outlined{font-size:52px;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;display:block}
 .upload-zone p{font:400 14px/20px 'Noto Sans SC';color:var(--on-surface-variant);margin-top:4px}
-.upload-zone input{display:none}
+.upload-zone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1}
 .file-info{display:none;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,rgba(124,77,255,.06) 0%,rgba(180,124,255,.03) 100%);border-radius:var(--r-md);margin-top:12px;font:500 14px/20px 'Noto Sans SC';border:1px solid rgba(124,77,255,.12)}
 .file-info.show{display:flex}
 .file-info .material-symbols-outlined{font-size:22px;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -1115,15 +1115,24 @@ RULE_GROUPS.forEach(g => g.rules.forEach(r => { rules[r.id] = true; }));
 let _currentPage = 'clean';
 function navigate(page) {
   if (page === _currentPage) return;
-  // If there's unsaved cleaned text, confirm before leaving
-  if (_currentPage === 'clean' && cleanedText && !confirm('切换页面后清洗结果将丢失，确定离开？')) return;
-  if (_currentPage === 'convert' && convertedText && !confirm('切换页面后转换结果将丢失，确定离开？')) return;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
-  _currentPage = page;
-  if (page === 'market') renderMarketplace();
+  const doNavigate = () => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    _currentPage = page;
+    if (page === 'market') renderMarketplace();
+  };
+  // If there's unsaved cleaned text, confirm before leaving (自定义对话框，Android WebView 原生 confirm 不可用)
+  if (_currentPage === 'clean' && cleanedText) {
+    showConfirm({icon:'info', title:'离开当前页', content:'切换页面后清洗结果将丢失，确定离开？', confirmText:'离开', onConfirm: doNavigate});
+    return;
+  }
+  if (_currentPage === 'convert' && convertedText) {
+    showConfirm({icon:'info', title:'离开当前页', content:'切换页面后转换结果将丢失，确定离开？', confirmText:'离开', onConfirm: doNavigate});
+    return;
+  }
+  doNavigate();
 }
 
 // ==================== RENDER RULES ====================
@@ -1272,6 +1281,7 @@ const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
 
 uploadZone.addEventListener('click', (e) => {
+  if (e.target === fileInput) return; // input 覆盖层自身原生触发，避免重复
   e.preventDefault();
   fileInput.click();
 });
@@ -1808,6 +1818,7 @@ const convertUploadZone = document.getElementById('convertUploadZone');
 const convertFileInput = document.getElementById('convertFileInput');
 
 convertUploadZone.addEventListener('click', (e) => {
+  if (e.target === convertFileInput) return; // input 覆盖层自身原生触发，避免重复
   e.preventDefault();
   convertFileInput.click();
 });
@@ -1985,7 +1996,7 @@ function renderMarketplace(tab) {
     return;
   }
   content.innerHTML = '<div class="list-container">' + packs.map(p => `
-    <div class="list-item" onclick="event.stopPropagation()">
+    <div class="list-item" data-category="${p.category||''}" onclick="event.stopPropagation()">
       <div class="leading"><span class="material-symbols-outlined">extension</span></div>
       <div class="content">
         <div class="headline">${p.name}</div>
@@ -2016,8 +2027,10 @@ async function installPack(id) {
   if (!pack) return snackbar.show('规则包未找到');
   if (!pack.installed) {
     const detail = await fetchPackDetail(id);
-    if (detail) pack = {...pack, ...detail};
+    if (!detail) return snackbar.show('规则包加载失败：无法获取规则详情，请检查网络后重试');
+    pack = {...pack, ...detail};
   }
+  if (!pack.rules || !pack.rules.length) return snackbar.show('规则包加载失败：未包含任何规则');
   pack.rules.forEach(r => {
     try {
       const regex = new RegExp(r.pattern, r.flags || 'gi');
@@ -2338,7 +2351,7 @@ function toast(msg) { snackbar.show(msg); }
 // ==================== INIT ====================
 
 // ==================== VERSION CHECK ====================
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '2.0';
 async function checkForUpdates() {
   try {
     const resp = await fetch(`https://raw.githubusercontent.com/hrk666666/clearbook-rules/main/version.json?t=${Date.now()}`);
