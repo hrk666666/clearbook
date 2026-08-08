@@ -93,41 +93,68 @@ public class MainActivity extends Activity {
 
             @JavascriptInterface
             public void downloadFile(String filename, String base64Content, String mimeType) {
+                String result;
                 try {
                     byte[] data = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT);
-                    saveToDownloads(filename, data, mimeType);
-                    runOnUiThread(() -> {
-                        webView.evaluateJavascript(
-"snackbar.show('已保存到下载目录: " + escapeJs(filename) + "')", null
-                        );
-                    });
+                    result = saveToDownloads(filename, data, mimeType);
                 } catch (Exception e) {
-                    runOnUiThread(() -> {
-                        webView.evaluateJavascript(
-"snackbar.show('下载失败: " + escapeJs(String.valueOf(e.getMessage())) + "')", null
-                        );
-                    });
+                    result = "ERROR:" + String.valueOf(e.getMessage());
                 }
+                final String finalResult = result;
+                runOnUiThread(() -> {
+                    String js;
+                    if (finalResult.startsWith("ERROR:")) {
+                        js = "snackbar.show('下载失败: " + escapeJs(finalResult.substring(6)) + "')";
+                    } else {
+                        js = "snackbar.show('已保存: " + escapeJs(finalResult) + "')";
+                    }
+                    webView.evaluateJavascript(js, null);
+                });
             }
 
-            private void saveToDownloads(String filename, byte[] data, String mimeType) throws Exception {
+            private String sanitizeFilename(String name) {
+                if (name == null || name.isEmpty()) return "clearbook.txt";
+                String safe = name.replaceAll("[\\\\/:*?\"<>|\\n\\r\\t]", "_");
+                return safe;
+            }
+
+            private String saveToDownloads(String filename, byte[] data, String mimeType) throws Exception {
+                String safeName = sanitizeFilename(filename);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Android 10+: MediaStore 公共 Downloads（分区存储）
-                    android.content.ContentValues values = new android.content.ContentValues();
-                    values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, filename);
-                    values.put(android.provider.MediaStore.Downloads.MIME_TYPE, mimeType != null ? mimeType : "application/octet-stream");
-                    values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS);
-                    android.net.Uri uri = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                    if (uri == null) throw new java.io.IOException("MediaStore insert failed");
-                    java.io.OutputStream os = getContentResolver().openOutputStream(uri);
-                    if (os == null) throw new java.io.IOException("openOutputStream failed");
-                    os.write(data);
-                    os.close();
+                    // Android 10+: MediaStore 两阶段写入（IS_PENDING 必需，否则部分设备 insert 返回 null）
+                    try {
+                        android.content.ContentValues values = new android.content.ContentValues();
+                        values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, safeName);
+                        values.put(android.provider.MediaStore.Downloads.MIME_TYPE, mimeType != null ? mimeType : "application/octet-stream");
+                        values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS);
+                        values.put(android.provider.MediaStore.Downloads.IS_PENDING, 1);
+                        android.net.Uri collection = android.provider.MediaStore.Downloads.getContentUri(android.provider.MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                        android.net.Uri item = getContentResolver().insert(collection, values);
+                        if (item == null) throw new java.io.IOException("MediaStore insert returned null");
+                        java.io.OutputStream os = getContentResolver().openOutputStream(item);
+                        if (os == null) throw new java.io.IOException("openOutputStream returned null");
+                        os.write(data);
+                        os.close();
+                        values.clear();
+                        values.put(android.provider.MediaStore.Downloads.IS_PENDING, 0);
+                        getContentResolver().update(item, values, null, null);
+                        return "Download/" + safeName;
+                    } catch (Exception mediaStoreErr) {
+                        // 兜底：写入 App 私有外部目录（无需任何权限，任何设备都可用）
+                        java.io.File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS);
+                        if (dir == null) dir = getFilesDir();
+                        if (!dir.exists()) dir.mkdirs();
+                        java.io.File file = new java.io.File(dir, safeName);
+                        java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
+                        fos.write(data);
+                        fos.close();
+                        return "App 目录: " + file.getAbsolutePath();
+                    }
                 } else {
                     // Android 9 及以下：直接写公共目录
                     java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                     if (!dir.exists()) dir.mkdirs();
-                    java.io.File file = new java.io.File(dir, filename);
+                    java.io.File file = new java.io.File(dir, safeName);
                     java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
                     fos.write(data);
                     fos.close();
@@ -135,6 +162,7 @@ public class MainActivity extends Activity {
                     Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     mediaScanIntent.setData(Uri.fromFile(file));
                     sendBroadcast(mediaScanIntent);
+                    return "Download/" + safeName;
                 }
             }
         }, "Android");
